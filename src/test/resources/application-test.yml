@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: Time-Entry-Service
+  #enable .env.properties file
+  config:
+    import: optional:classpath:.env.properties
+
+--- # DB
+spring:
+  datasource:
+    url: jdbc:h2:mem:order
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+
+--- # Eureka client configuration
+eureka:
+  client:
+    enabled: false # for testing purposes
+
+--- # Keycloak configuration: will be same as main
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
+
+--- # Swagger
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: ${KEYCLOAK_CLIENT_ID} # fill this data otherwise `mvn clean install` won't succeed.
+      client-secret: ${KEYCLOAK_CLIENT_SECRET} # fill this data otherwise `mvn clean install` won't succeed.
