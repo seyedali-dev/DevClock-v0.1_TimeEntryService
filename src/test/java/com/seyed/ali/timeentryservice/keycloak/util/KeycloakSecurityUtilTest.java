@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Collection;
@@ -75,11 +74,6 @@ class KeycloakSecurityUtilTest {
 
         when(jwt.getClaim("realm_access"))
                 .thenReturn(realmAccess);
-
-        List<SimpleGrantedAuthority> roles = List.of(
-                new SimpleGrantedAuthority("board_manager"),
-                new SimpleGrantedAuthority("board_member")
-        );
 
         // when
         KeycloakSecurityUtil keycloakSecurityUtil = new KeycloakSecurityUtil(new ObjectMapper());
