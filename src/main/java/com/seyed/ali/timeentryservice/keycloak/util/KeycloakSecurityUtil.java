@@ -38,6 +38,7 @@ public class KeycloakSecurityUtil {
      * @return a collection of granted authorities
      * @see . the test of this method <pre>KeycloakSecurityUtilTest#testExtractAuthorities()</pre>
      */
+    @SuppressWarnings("unchecked")
     public Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         // Get the "realm_access" claim from the JWT token
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
