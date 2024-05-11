@@ -138,11 +138,10 @@ class TimeEntryControllerTest {
                         .content(json)
         );
 
-
         // then
         response
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("CREATED")))
                 .andExpect(jsonPath("$.message", is("Time entry created successfully.")))
