@@ -56,61 +56,17 @@ class TimeEntryServiceImplTest {
         this.timeEntry.setStartTime(startTime);
         this.timeEntry.setEndTime(endTime);
         this.timeEntry.setDuration(duration);
-
-        when(timeParser.parseStringToLocalDateTime(startTimeStr)).thenReturn(startTime);
-        when(timeParser.parseStringToLocalDateTime(endTimeStr)).thenReturn(endTime);
-        when(timeParser.parseStringToDuration(durationStr)).thenReturn(duration);
-        when(authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(null);
-        when(timeEntryRepository.save(any(TimeEntry.class))).thenReturn(timeEntry);
-        when(timeParser.parseTimeToString(startTime, endTime, duration)).thenReturn("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
     }
     //</editor-fold>
 
     @Test
     void getTimeEntries() {
-       /* // given
-        String startTimeStr = "2024-05-11 08:00:00";
-        String endTimeStr = "2024-05-11 10:00:00";
-        String durationStr = "02:00:00";
-        LocalDateTime startTime = LocalDateTime.parse(startTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Duration duration = this.parseStringToDuration(durationStr);
-        System.out.println("startTime: " + startTime);
-        System.out.println("endTime: " + endTime);
-        System.out.println("duration: " + duration);
-
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(duration);
-
-        when(this.timeEntryRepository.findAll())
-                .thenReturn(List.of(timeEntry));
-        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
-                .thenReturn(endTimeStr);
-        when(this.timeParser.parseDurationToString(isA(Duration.class)))
-                .thenReturn(durationStr);
-
-        // when
-        List<TimeEntryDTO> result = this.timeEntryService.getTimeEntries();
-        System.out.println(result);
-
-        // then
-        assertThat(result)
-                .as("Must not be null")
-                .isNotNull()
-                .as("Must have 1 value")
-                .hasSize(1);
-        assertThat(result.getFirst().duration())
-                .as("Must be equal to = PT2H")
-                .isEqualTo(this.parseDurationToString(timeEntry.getDuration()));*/
         // given
         when(this.timeEntryRepository.findAll())
                 .thenReturn(List.of(this.timeEntry));
-        when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
+        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
                 .thenReturn(this.endTimeStr);
-        when(this.timeParser.parseDurationToString(any(Duration.class)))
+        when(this.timeParser.parseDurationToString(isA(Duration.class)))
                 .thenReturn(this.durationStr);
 
         // when
@@ -136,44 +92,12 @@ class TimeEntryServiceImplTest {
 
     @Test
     void getUsersTimeEntry() {
-       /* // given
-        String startTimeStr = "2024-05-11 08:00:00";
-        String endTimeStr = "2024-05-11 10:00:00";
-        String durationStr = "02:00:00";
-        LocalDateTime startTime = LocalDateTime.parse(startTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Duration duration = this.parseStringToDuration(durationStr);
-        System.out.println("startTime: " + startTime);
-        System.out.println("endTime: " + endTime);
-        System.out.println("duration: " + duration);
-
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(duration);
-
-        when(this.timeEntryRepository.findByUserId(isA(String.class)))
-                .thenReturn(timeEntry);
-        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
-                .thenReturn(endTimeStr);
-        when(this.timeParser.parseDurationToString(isA(Duration.class)))
-                .thenReturn(durationStr);
-
-        // when
-        TimeEntryDTO result = this.timeEntryService.getUsersTimeEntry("some_user_id");
-        System.out.println(result);
-
-        // then
-        assertThat(result)
-                .as("Must not be null")
-                .isNotNull();*/
         // given
-        when(this.timeEntryRepository.findByUserId(anyString()))
+        when(this.timeEntryRepository.findByUserId(isA(String.class)))
                 .thenReturn(this.timeEntry);
-        when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
+        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
                 .thenReturn(this.endTimeStr);
-        when(this.timeParser.parseDurationToString(any(Duration.class)))
+        when(this.timeParser.parseDurationToString(isA(Duration.class)))
                 .thenReturn(this.durationStr);
 
         // when
@@ -190,52 +114,20 @@ class TimeEntryServiceImplTest {
 
     @Test
     public void addTimeEntryManuallyTest_WithDuration() {
-        /*// Given
-        String startTimeStr = "2024-05-11 08:00:00";
-        String endTimeStr = "2024-05-11 10:00:00";
-        String durationStr = "02:00:00";
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, this.durationStr);
 
-        LocalDateTime startTime = LocalDateTime.parse(startTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Duration duration = this.parseStringToDuration(durationStr);
-        System.out.println("startTime: " + startTime);
-        System.out.println("endTime: " + endTime);
-        System.out.println("duration: " + duration);
-
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(duration);
-        timeEntry.setUserId(null);
-
-        when(this.timeParser.parseStringToLocalDateTime(startTimeStr))
-                .thenReturn(startTime);
-        when(this.timeParser.parseStringToLocalDateTime(endTimeStr))
-                .thenReturn(endTime);
-        when(this.timeParser.parseStringToDuration(durationStr))
-                .thenReturn(duration);
+        when(this.timeParser.parseStringToLocalDateTime(this.startTimeStr))
+                .thenReturn(this.startTime);
+        when(this.timeParser.parseStringToLocalDateTime(this.endTimeStr))
+                .thenReturn(this.endTime);
+        when(this.timeParser.parseStringToDuration(this.durationStr))
+                .thenReturn(this.duration);
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
                 .thenReturn(null);
         when(this.timeEntryRepository.save(isA(TimeEntry.class)))
-                .thenReturn(timeEntry);
-        when(this.timeParser.parseTimeToString(startTime, endTime, duration))
+                .thenReturn(this.timeEntry);
+        when(this.timeParser.parseTimeToString(this.startTime, this.endTime, this.duration))
                 .thenReturn("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
-
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
-
-        // When
-        String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
-        System.out.println(result);
-
-        // Then
-        assertThat(result)
-                .as("Must not be null")
-                .isNotNull();
-        verify(this.timeEntryRepository, times(1))
-                .save(isA(TimeEntry.class));*/
-        // Given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, this.durationStr);
 
         // When
         String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
@@ -246,7 +138,7 @@ class TimeEntryServiceImplTest {
                 .isNotNull()
                 .isEqualTo("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
         verify(this.timeEntryRepository, times(1))
-                .save(any(TimeEntry.class));
+                .save(isA(TimeEntry.class));
     }
 
     private Duration parseStringToDuration(String string) {
@@ -262,49 +154,19 @@ class TimeEntryServiceImplTest {
 
     @Test
     public void addTimeEntryManuallyTest_WithoutDuration() {
-        /*// Given
-        String startTimeStr = "2024-05-11 08:00:00";
-        String endTimeStr = "2024-05-11 10:00:00";
+        // Given
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, null);
 
-        LocalDateTime startTime = LocalDateTime.parse(startTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Duration calculatedDuration = Duration.between(startTime, endTime);
-        System.out.println("startTime: " + startTime);
-        System.out.println("endTime: " + endTime);
-        System.out.println("calculatedDuration: " + calculatedDuration);
-
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(calculatedDuration);
-        timeEntry.setUserId(null);
-
-        when(this.timeParser.parseStringToLocalDateTime(startTimeStr))
-                .thenReturn(startTime);
-        when(this.timeParser.parseStringToLocalDateTime(endTimeStr))
-                .thenReturn(endTime);
+        when(this.timeParser.parseStringToLocalDateTime(this.startTimeStr))
+                .thenReturn(this.startTime);
+        when(this.timeParser.parseStringToLocalDateTime(this.endTimeStr))
+                .thenReturn(this.endTime);
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
                 .thenReturn(null);
         when(this.timeEntryRepository.save(isA(TimeEntry.class)))
-                .thenReturn(timeEntry);
-        when(this.timeParser.parseTimeToString(startTime, endTime, calculatedDuration))
+                .thenReturn(this.timeEntry);
+        when(this.timeParser.parseTimeToString(this.startTime, this.endTime, this.duration))
                 .thenReturn("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
-
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, startTimeStr, endTimeStr, null);
-
-        // When
-        String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
-        System.out.println(result);
-
-        // Then
-        assertThat(result)
-                .as("Must not be null")
-                .isNotNull();
-        verify(this.timeEntryRepository, times(1))
-                .save(isA(TimeEntry.class));*/
-        // Given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, null);
 
         // When
         String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
@@ -315,7 +177,7 @@ class TimeEntryServiceImplTest {
                 .isNotNull()
                 .isEqualTo("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
         verify(this.timeEntryRepository, times(1))
-                .save(any(TimeEntry.class));
+                .save(isA(TimeEntry.class));
     }
 
 }

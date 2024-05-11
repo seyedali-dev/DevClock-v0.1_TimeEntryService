@@ -11,7 +11,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${endpoint.base-url}/time")
+@RequestMapping("/api/v1/time")
 public class TimeEntryController {
 
     private final TimeEntryService timeEntryService;
