@@ -1,6 +1,6 @@
 package com.seyed.ali.timeentryservice.exceptions;
 
-import com.seyed.ali.timeentryservice.response.Result;
+import com.seyed.ali.timeentryservice.model.dto.Result;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
