@@ -12,4 +12,7 @@ public interface TimeEntryService {
 
     String addTimeEntryManually(TimeEntryDTO timeEntryDTODTO);
 
+    TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
+
+    void deleteTimeEntry(String id);
 }

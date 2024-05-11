@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -39,27 +40,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {EurekaClientTestConfiguration.class}) /* to call the configuration in the test (for service-registry configs) */
 class TimeEntryControllerTest {
 
-    //<editor-fold desc="mocks">
     private @MockBean TimeEntryService timeEntryService;
     private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
 
     private @Autowired ObjectMapper objectMapper;
     private @Autowired MockMvc mockMvc;
-    //</editor-fold>
 
-    //<editor-fold desc="fields">
     private final String baseUrl = "/api/v1/time";
     private final List<TimeEntryDTO> timeEntries = new ArrayList<>();
-    //</editor-fold>
 
-    //<editor-fold desc="setup">
     @BeforeEach
     void setUp() {
         TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00");
 
         this.timeEntries.add(timeEntryDTO);
     }
-    //</editor-fold>
 
     @Test
     public void getTimeEntriesTest() throws Exception {
@@ -153,6 +148,66 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.message", is("Time entry created successfully.")))
                 .andExpect(jsonPath("$.data", is("startTime(2024-05-11 08:00:00)  | endTime (2024-05-11 10:00:00) | duration(02:00:00)")));
 
+    }
+
+    @Test
+    public void updateTimeEntryTest() throws Exception {
+        // Given
+        String id = "1";
+        TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
+        String json = this.objectMapper.writeValueAsString(timeEntryDTO);
+
+        when(this.timeEntryService.updateTimeEntryManually(id, timeEntryDTO))
+                .thenReturn(timeEntryDTO);
+
+        String someAuthority = "some_authority";
+
+        // When
+        ResultActions response = this.mockMvc.perform(
+                MockMvcRequestBuilders.put(this.baseUrl + "/" + id)
+                        .accept(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+        );
+
+        // Then
+        response
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("OK")))
+                .andExpect(jsonPath("$.message", is("Time entry for user: -> " + id + " <- updated successfully.")))
+                .andExpect(jsonPath("$.data.id", is("1")))
+                .andExpect(jsonPath("$.data.startTime", is("2024-05-11 08:00:00")))
+                .andExpect(jsonPath("$.data.endTime", is("2024-05-11 10:00:00")))
+                .andExpect(jsonPath("$.data.duration", is("02:00:00")));
+    }
+
+    @Test
+    public void deleteTimeEntryTest() throws Exception {
+        // Given
+        String id = "1";
+        doNothing()
+                .when(this.timeEntryService)
+                .deleteTimeEntry(id);
+
+        String someAuthority = "some_authority";
+
+        // When
+        ResultActions response = this.mockMvc.perform(
+                MockMvcRequestBuilders.delete(this.baseUrl + "/" + id)
+                        .accept(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
+        );
+
+        // Then
+        response
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("NO_CONTENT")))
+                .andExpect(jsonPath("$.message", is("Time entry deleted successfully.")));
     }
 
 }

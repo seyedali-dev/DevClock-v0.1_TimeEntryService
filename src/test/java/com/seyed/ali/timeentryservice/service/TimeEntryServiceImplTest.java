@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,14 +25,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TimeEntryServiceImplTest {
 
-    //<editor-fold desc="mocks">
     private @InjectMocks TimeEntryServiceImpl timeEntryService;
     private @Mock TimeEntryRepository timeEntryRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
-    //</editor-fold>
 
-    //<editor-fold desc="fields">
     private String startTimeStr;
     private String endTimeStr;
     private String durationStr;
@@ -39,9 +37,7 @@ class TimeEntryServiceImplTest {
     private LocalDateTime endTime;
     private Duration duration;
     private TimeEntry timeEntry;
-    //</editor-fold>
 
-    //<editor-fold desc="setup">
     @BeforeEach
     void setUp() {
         this.startTimeStr = "2024-05-11 08:00:00";
@@ -57,7 +53,6 @@ class TimeEntryServiceImplTest {
         this.timeEntry.setEndTime(endTime);
         this.timeEntry.setDuration(duration);
     }
-    //</editor-fold>
 
     @Test
     void getTimeEntries() {
@@ -178,6 +173,53 @@ class TimeEntryServiceImplTest {
                 .isEqualTo("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
         verify(this.timeEntryRepository, times(1))
                 .save(isA(TimeEntry.class));
+    }
+
+    @Test
+    public void updateTimeEntryTest() {
+        // Given
+        String id = "Some_timeEntry_id";
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, this.durationStr);
+
+        when(this.timeEntryRepository.findById(id))
+                .thenReturn(Optional.of(this.timeEntry));
+        when(this.timeParser.parseStringToLocalDateTime(isA(String.class)))
+                .thenReturn(this.endTime);
+        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
+                .thenReturn(this.startTimeStr);
+        when(this.timeParser.parseDurationToString(isA(Duration.class)))
+                .thenReturn(this.durationStr);
+
+        // When
+        TimeEntryDTO result = this.timeEntryService.updateTimeEntryManually(id, timeEntryDTO);
+        System.out.println(result);
+
+        // Then
+        assertThat(result)
+                .as("Must not be null")
+                .isNotNull();
+        assertThat(result.duration())
+                .as("Must be equal to = PT2H")
+                .isEqualTo("02:00:00");
+
+        verify(this.timeEntryRepository, times(1))
+                .save(isA(TimeEntry.class));
+    }
+
+    @Test
+    public void deleteTimeEntryTest() {
+        // Given
+        String id = "Some_timeEntry_id";
+        doNothing()
+                .when(this.timeEntryRepository)
+                .deleteById(id);
+
+        // When
+        this.timeEntryService.deleteTimeEntry(id);
+
+        // Then
+        verify(this.timeEntryRepository, times(1))
+                .deleteById(id);
     }
 
 }
