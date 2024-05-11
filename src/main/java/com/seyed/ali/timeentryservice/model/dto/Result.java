@@ -1,4 +1,4 @@
-package com.seyed.ali.timeentryservice.response;
+package com.seyed.ali.timeentryservice.model.dto;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;
