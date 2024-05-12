@@ -5,8 +5,8 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import com.seyed.ali.timeentryservice.util.TimeEntryServiceUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +14,22 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class TimeEntryServiceImpl implements TimeEntryService {
+public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements TimeEntryService {
 
     private final TimeEntryRepository timeEntryRepository;
-    private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
+
+    public TimeEntryServiceImpl(AuthenticationServiceClient authenticationServiceClient,
+                                TimeParser timeParser,
+                                TimeEntryRepository timeEntryRepository,
+                                TimeParser parser) {
+        super(authenticationServiceClient, timeParser);
+        this.timeEntryRepository = timeEntryRepository;
+        this.timeParser = parser;
+    }
 
     @Override
     public List<TimeEntryDTO> getTimeEntries() {
@@ -51,33 +57,6 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         TimeEntry timeEntry = createTimeEntry(timeEntryDTO);
         this.timeEntryRepository.save(timeEntry);
         return this.timeParser.parseTimeToString(timeEntry.getStartTime(), timeEntry.getEndTime(), timeEntry.getDuration());
-    }
-
-    // TODO
-    private TimeEntry createTimeEntry(TimeEntryDTO timeEntryDTO) {
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-
-        LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
-        LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());
-        Duration calculatedDuration = Duration.between(startTime, endTime);
-
-        // if the user entered `duration` field
-        Optional<Duration> durationOpt = Optional.ofNullable(timeEntryDTO.duration())
-                .map(this.timeParser::parseStringToDuration);
-
-        durationOpt.ifPresent(duration -> {
-            if (!calculatedDuration.equals(duration)) {
-                throw new IllegalArgumentException("The provided endTime and duration are not consistent with the startTime");
-            }
-        });
-
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(calculatedDuration);
-        timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
-
-        return timeEntry;
     }
 
     @Override
