@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -151,13 +152,13 @@ class TimeEntryControllerTest {
     @Test
     public void startTrackingTimeEntryTest() throws Exception {
         // given
-        doNothing()
-                .when(this.timeEntryService)
-                .startTrackingTimeEntry();
+        String timeEntryId = "some_time_entry_id";
+        when(this.timeEntryService.startTrackingTimeEntry())
+                .thenReturn(timeEntryId);
 
         // when
         ResultActions response = this.mockMvc.perform(
-                post(this.baseUrl + "/track")
+                post(this.baseUrl + "/track/start")
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
                         .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
@@ -169,6 +170,36 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("CREATED")))
                 .andExpect(jsonPath("$.message", is("Time tracking started...")))
+                .andExpect(jsonPath("$.data", is(timeEntryId)))
+        ;
+    }
+
+    @Test
+    public void stopTrackingTimeEntryTest() throws Exception {
+        // given
+        TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
+        String timeEntryId = timeEntryDTO.id();
+        when(this.timeEntryService.stopTrackingTimeEntry(timeEntryId))
+                .thenReturn(timeEntryDTO);
+
+        // when
+        ResultActions response = this.mockMvc.perform(
+                put(this.baseUrl + "/track/stop/" + timeEntryId)
+                        .accept(APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
+        );
+
+        // then
+        response.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("OK")))
+                .andExpect(jsonPath("$.message", is("Time tracking stopped.")))
+                .andExpect(jsonPath("$.data.id", is(timeEntryId)))
+                .andExpect(jsonPath("$.data.startTime", is(timeEntryDTO.startTime())))
+                .andExpect(jsonPath("$.data.endTime", is(timeEntryDTO.endTime())))
+                .andExpect(jsonPath("$.data.duration", is(timeEntryDTO.duration())))
         ;
     }
 
@@ -186,7 +217,7 @@ class TimeEntryControllerTest {
 
         // When
         ResultActions response = this.mockMvc.perform(
-                MockMvcRequestBuilders.put(this.baseUrl + "/" + id)
+                put(this.baseUrl + "/" + id)
                         .accept(APPLICATION_JSON)
                         .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
                         .contentType(APPLICATION_JSON)

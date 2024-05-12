@@ -65,21 +65,22 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
 
     // TODO: Implement REDIS for caching the `start_time`
     @Override
-    public void startTrackingTimeEntry() {
+    public String startTrackingTimeEntry() {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setId(UUID.randomUUID().toString());
         timeEntry.setStartTime(LocalDateTime.now());
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
         this.timeEntryRepository.save(timeEntry);
+        return timeEntry.getId();
     }
 
     // TODO: Implement REDIS for getting the cached `start_time`
     @Override
-    public TimeEntryDTO stopTrackingTimeEntry() {
+    public TimeEntryDTO stopTrackingTimeEntry(String timeEntryId) {
         LocalDateTime endTime = LocalDateTime.now();
 
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
-        TimeEntry timeEntry = this.timeEntryRepository.findByUserId(currentLoggedInUsersId);
+        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndId(currentLoggedInUsersId, timeEntryId);
         timeEntry.setEndTime(endTime);
 
         LocalDateTime startTime = timeEntry.getStartTime();

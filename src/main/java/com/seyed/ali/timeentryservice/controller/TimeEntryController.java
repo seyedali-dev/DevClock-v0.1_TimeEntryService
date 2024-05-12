@@ -3,6 +3,7 @@ package com.seyed.ali.timeentryservice.controller;
 import com.seyed.ali.timeentryservice.model.dto.Result;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/time")
+@SecurityRequirement(name = "Keycloak")
 public class TimeEntryController {
 
     private final TimeEntryService timeEntryService;
@@ -49,22 +51,22 @@ public class TimeEntryController {
     @PostMapping("/track/start")
     @ResponseStatus(CREATED)
     public Result startTrackingTimeEntry() {
-        this.timeEntryService.startTrackingTimeEntry();
         return new Result(
                 true,
                 CREATED,
-                "Time tracking started..."
+                "Time tracking started...",
+                this.timeEntryService.startTrackingTimeEntry()
         );
     }
 
-    @PutMapping("/track/stop")
+    @PutMapping("/track/stop/{timeEntryId}")
     @ResponseStatus(OK)
-    public Result stopTrackingTimeEntry() {
+    public Result stopTrackingTimeEntry(@PathVariable String timeEntryId) {
         return new Result(
                 true,
                 OK,
                 "Time tracking stopped.",
-                this.timeEntryService.stopTrackingTimeEntry()
+                this.timeEntryService.stopTrackingTimeEntry(timeEntryId)
         );
     }
 
