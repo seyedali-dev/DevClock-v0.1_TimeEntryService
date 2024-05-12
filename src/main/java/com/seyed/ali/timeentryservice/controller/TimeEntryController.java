@@ -46,7 +46,7 @@ public class TimeEntryController {
         );
     }
 
-    @PostMapping("/track")
+    @PostMapping("/track/start")
     @ResponseStatus(CREATED)
     public Result startTrackingTimeEntry() {
         this.timeEntryService.startTrackingTimeEntry();
@@ -57,7 +57,7 @@ public class TimeEntryController {
         );
     }
 
-    @PutMapping("/stop-tracking")
+    @PutMapping("/track/stop")
     @ResponseStatus(OK)
     public Result stopTrackingTimeEntry() {
         return new Result(

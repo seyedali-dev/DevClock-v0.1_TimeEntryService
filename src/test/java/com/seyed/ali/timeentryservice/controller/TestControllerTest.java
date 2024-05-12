@@ -28,9 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {EurekaClientTestConfiguration.class}) /* to call the configuration in the test (for service-registry configs) */
 public class TestControllerTest {
 
-    //<editor-fold desc="fields">
     private @Autowired MockMvc mockMvc;
-    //</editor-fold>
 
     @Test
     public void helloTest() throws Exception {
