@@ -5,12 +5,15 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.util.TimeParser;
+import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TimeEntryServiceImplTest {
+class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
     private @InjectMocks TimeEntryServiceImpl timeEntryService;
     private @Mock TimeEntryRepository timeEntryRepository;
@@ -78,13 +81,6 @@ class TimeEntryServiceImplTest {
                 .isEqualTo(parseDurationToString(timeEntry.getDuration()));
     }
 
-    public String parseDurationToString(Duration duration) {
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
-        long seconds = duration.getSeconds() % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-
     @Test
     void getUsersTimeEntry() {
         // given
@@ -136,17 +132,6 @@ class TimeEntryServiceImplTest {
                 .save(isA(TimeEntry.class));
     }
 
-    private Duration parseStringToDuration(String string) {
-        String[] durationParts = string.split(":");
-        long hours = Long.parseLong(durationParts[0]);
-        long minutes = Long.parseLong(durationParts[1]);
-        long seconds = Long.parseLong(durationParts[2]);
-        return Duration
-                .ofHours(hours)
-                .plusMinutes(minutes)
-                .plusSeconds(seconds);
-    }
-
     @Test
     public void addTimeEntryManuallyTest_WithoutDuration() {
         // Given
@@ -173,6 +158,64 @@ class TimeEntryServiceImplTest {
                 .isEqualTo("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
         verify(this.timeEntryRepository, times(1))
                 .save(isA(TimeEntry.class));
+    }
+
+    @Test
+    void startTrackingTimeEntryTest() {
+        // given
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
+                .thenReturn("some_user_id");
+        when(this.timeEntryRepository.save(isA(TimeEntry.class)))
+                .thenReturn(this.timeEntry);
+
+        // when
+        this.timeEntryService.startTrackingTimeEntry();
+
+        // then
+        verify(this.timeEntryRepository, times(1))
+                .save(isA(TimeEntry.class));
+    }
+
+    @Test
+    void stopTrackingTimeEntryTest() {
+        // given
+        String userId = "current_user_id";
+        LocalDateTime fixedEndTime = LocalDateTime.of(2024, 5, 11, 10, 0);
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
+                .thenReturn(userId);
+        when(this.timeEntryRepository.save(isA(TimeEntry.class)))
+                .thenReturn(timeEntry);
+        when(this.timeParser.parseStringToLocalDateTime(this.startTimeStr))
+                .thenReturn(this.startTime);
+        when(this.timeParser.parseStringToLocalDateTime(this.endTimeStr))
+                .thenReturn(this.endTime);
+
+        // Mock LocalDateTime.now() to return a fixed end time
+        MockedStatic<LocalDateTime> localDateTimeMockedStatic = mockStatic(LocalDateTime.class);
+        localDateTimeMockedStatic
+                .when(LocalDateTime::now)
+                .thenReturn(fixedEndTime);
+
+        // when
+        TimeEntryDTO timeEntryDTO = this.timeEntryService.stopTrackingTimeEntry();
+        System.out.println(timeEntryDTO);
+
+        // then
+        assertThat(timeEntryDTO)
+                .as("Must not be null")
+                .isNotNull();
+        assertThat(timeEntryDTO.endTime())
+                .as("End time should match the fixedEndTime")
+                .isEqualTo(fixedEndTime.toString());
+        assertThat(timeEntryDTO.duration())
+                .as("Duration should be calculated correctly")
+                .isEqualTo(Duration.between(this.startTime, fixedEndTime).toString());
+
+        verify(this.timeEntryRepository, times(1))
+                .save(isA(TimeEntry.class));
+
+        // Clean up the mocked static method after the test
+        localDateTimeMockedStatic.close();
     }
 
     @Test

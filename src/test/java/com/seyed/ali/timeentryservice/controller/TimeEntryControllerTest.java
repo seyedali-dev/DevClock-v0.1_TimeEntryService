@@ -86,7 +86,7 @@ class TimeEntryControllerTest {
     }
 
     @Test
-    void getUsersTimeEntryTest() throws Exception {
+    public void getUsersTimeEntryTest() throws Exception {
         // Given
         String userId = "some_user_id";
         when(this.timeEntryService.getUsersTimeEntry(userId))
@@ -116,7 +116,7 @@ class TimeEntryControllerTest {
     }
 
     @Test
-    void addTimeEntryManuallyTest() throws Exception {
+    public void addTimeEntryManuallyTest() throws Exception {
         // given
         TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
@@ -146,7 +146,30 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.httpStatus", is("CREATED")))
                 .andExpect(jsonPath("$.message", is("Time entry created successfully.")))
                 .andExpect(jsonPath("$.data", is("startTime(2024-05-11 08:00:00)  | endTime (2024-05-11 10:00:00) | duration(02:00:00)")));
+    }
 
+    @Test
+    public void startTrackingTimeEntryTest() throws Exception {
+        // given
+        doNothing()
+                .when(this.timeEntryService)
+                .startTrackingTimeEntry();
+
+        // when
+        ResultActions response = this.mockMvc.perform(
+                post(this.baseUrl + "/track")
+                        .accept(APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
+        );
+
+        // then
+        response.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("CREATED")))
+                .andExpect(jsonPath("$.message", is("Time tracking started...")))
+        ;
     }
 
     @Test

@@ -80,6 +80,38 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         return timeEntry;
     }
 
+    // TODO: Implement REDIS for caching the `start_time`
+    @Override
+    public void startTrackingTimeEntry() {
+        TimeEntry timeEntry = new TimeEntry();
+        timeEntry.setId(UUID.randomUUID().toString());
+        timeEntry.setStartTime(LocalDateTime.now());
+        timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
+        this.timeEntryRepository.save(timeEntry);
+    }
+
+    // TODO: Implement REDIS for getting the cached `start_time`
+    @Override
+    public TimeEntryDTO stopTrackingTimeEntry() {
+        LocalDateTime endTime = LocalDateTime.now();
+
+        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
+        TimeEntry timeEntry = this.timeEntryRepository.findByUserId(currentLoggedInUsersId);
+        timeEntry.setEndTime(endTime);
+
+        LocalDateTime startTime = timeEntry.getStartTime();
+        Duration duration = Duration.between(startTime, endTime);
+
+        timeEntry.setDuration(duration);
+
+        this.timeEntryRepository.save(timeEntry);
+
+        String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
+        String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
+        String durationStr = this.timeParser.parseDurationToString(timeEntry.getDuration());
+        return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
+    }
+
     @Override
     public TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO) {
         Optional<TimeEntry> timeEntryOptional = this.timeEntryRepository.findById(id);

@@ -25,7 +25,6 @@ public class TimeParser {
                 .plusSeconds(seconds);
     }
 
-
     public String parseLocalDateTimeToString(LocalDateTime localDateTime) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return localDateTime.format(dateTimeFormatter);

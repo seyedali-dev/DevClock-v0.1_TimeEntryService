@@ -15,4 +15,9 @@ public interface TimeEntryService {
     TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
 
     void deleteTimeEntry(String id);
+
+    void startTrackingTimeEntry();
+
+    TimeEntryDTO stopTrackingTimeEntry();
+
 }
