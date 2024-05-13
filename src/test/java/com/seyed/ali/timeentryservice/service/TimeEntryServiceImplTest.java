@@ -2,8 +2,10 @@ package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
     private @InjectMocks TimeEntryServiceImpl timeEntryService;
     private @Mock TimeEntryRepository timeEntryRepository;
+    private @Mock TimeSegmentRepository timeSegmentRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
 
@@ -38,6 +41,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private LocalDateTime endTime;
     private Duration duration;
     private TimeEntry timeEntry;
+    private TimeSegment timeSegment;
 
     @BeforeEach
     void setUp() {
@@ -48,11 +52,15 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
         this.endTime = LocalDateTime.parse(this.endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.duration = this.parseStringToDuration(this.durationStr);
 
+        this.timeSegment = new TimeSegment();
+        this.timeSegment.setTimeSegmentId("1");
+        this.timeSegment.setStartTime(startTime);
+        this.timeSegment.setEndTime(endTime);
+        this.timeSegment.setDuration(duration);
+
         this.timeEntry = new TimeEntry();
         this.timeEntry.setId(UUID.randomUUID().toString());
-        this.timeEntry.setStartTime(startTime);
-        this.timeEntry.setEndTime(endTime);
-        this.timeEntry.setDuration(duration);
+        this.timeEntry.getTimeSegmentList().add(this.timeSegment);
     }
 
     @Test
@@ -67,6 +75,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         // when
         List<TimeEntryDTO> result = this.timeEntryService.getTimeEntries();
+        System.out.println(result);
 
         // then
         assertThat(result)
@@ -76,7 +85,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .hasSize(1);
         assertThat(result.getFirst().duration())
                 .as("Must be equal to = PT2H")
-                .isEqualTo(parseDurationToString(timeEntry.getDuration()));
+                .isEqualTo(parseDurationToString(timeEntry.getTimeSegmentList().getLast().getDuration()));
     }
 
     @Test
@@ -91,6 +100,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         // when
         TimeEntryDTO result = this.timeEntryService.getUsersTimeEntry("some_user_id");
+        System.out.println(result);
 
         // then
         assertThat(result)
@@ -98,7 +108,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .isNotNull();
         assertThat(result.duration())
                 .as("Must be equal to = PT2H")
-                .isEqualTo(parseDurationToString(this.timeEntry.getDuration()));
+                .isEqualTo(parseDurationToString(this.timeSegment.getDuration()));
     }
 
     @Test
@@ -113,6 +123,8 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(this.duration);
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
                 .thenReturn(null);
+        when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
+                .thenReturn(this.timeSegment);
         when(this.timeEntryRepository.save(isA(TimeEntry.class)))
                 .thenReturn(this.timeEntry);
         when(this.timeParser.parseTimeToString(this.startTime, this.endTime, this.duration))
@@ -120,6 +132,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         // When
         String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
+        System.out.println(result);
 
         // Then
         assertThat(result)
@@ -168,8 +181,12 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(Optional.of(this.timeEntry));
         when(this.timeParser.parseStringToLocalDateTime(isA(String.class)))
                 .thenReturn(this.endTime);
-        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
+        when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
+                .thenReturn(this.timeSegment);
+        when(this.timeParser.parseLocalDateTimeToString(this.startTime))
                 .thenReturn(this.startTimeStr);
+        when(this.timeParser.parseLocalDateTimeToString(this.endTime))
+                .thenReturn(this.endTimeStr);
         when(this.timeParser.parseDurationToString(isA(Duration.class)))
                 .thenReturn(this.durationStr);
 

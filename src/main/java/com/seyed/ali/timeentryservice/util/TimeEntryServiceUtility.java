@@ -2,7 +2,9 @@ package com.seyed.ali.timeentryservice.util;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public abstract class TimeEntryServiceUtility {
 
+    private final TimeSegmentRepository timeSegmentRepository;
     private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
 
@@ -34,9 +37,13 @@ public abstract class TimeEntryServiceUtility {
             }
         });
 
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(calculatedDuration);
+        TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setStartTime(startTime);
+        timeSegment.setEndTime(endTime);
+        timeSegment.setDuration(calculatedDuration);
+        this.timeSegmentRepository.save(timeSegment);
+
+        timeEntry.getTimeSegmentList().add(timeSegment);
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
 
         return timeEntry;

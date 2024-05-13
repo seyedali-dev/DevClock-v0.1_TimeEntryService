@@ -2,8 +2,10 @@ package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -20,6 +23,7 @@ import java.util.UUID;
 public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
 
     private final TimeEntryRepository timeEntryRepository;
+    private final TimeSegmentRepository timeSegmentRepository;
     private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
 
@@ -28,7 +32,12 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
     public String startTrackingTimeEntry() {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(LocalDateTime.now());
+        TimeSegment timeSegment = TimeSegment.builder()
+                .timeSegmentId(UUID.randomUUID().toString())
+                .startTime(LocalDateTime.now())
+                .build();
+        this.timeSegmentRepository.save(timeSegment);
+        timeEntry.setTimeSegmentList(List.of(timeSegment));
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
         this.timeEntryRepository.save(timeEntry);
         return timeEntry.getId();
@@ -41,18 +50,22 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
 
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndId(currentLoggedInUsersId, timeEntryId);
-        timeEntry.setEndTime(endTime);
+        TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
+        lastTimeSegment.setEndTime(endTime);
 
-        LocalDateTime startTime = timeEntry.getStartTime();
+        LocalDateTime startTime = lastTimeSegment.getStartTime();
         Duration duration = Duration.between(startTime, endTime);
 
-        timeEntry.setDuration(duration);
+        lastTimeSegment.setDuration(duration);
 
+        this.timeSegmentRepository.save(lastTimeSegment);
+
+        timeEntry.setTimeSegmentList(List.of(lastTimeSegment));
         this.timeEntryRepository.save(timeEntry);
 
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
-        String durationStr = this.timeParser.parseDurationToString(timeEntry.getDuration());
+        String durationStr = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
         return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
     }
 

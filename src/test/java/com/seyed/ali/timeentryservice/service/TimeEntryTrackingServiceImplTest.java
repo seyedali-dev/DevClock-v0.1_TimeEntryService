@@ -2,7 +2,10 @@ package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +30,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
 
     private @InjectMocks TimeEntryTrackingServiceImpl timeEntryTrackingService;
     private @Mock TimeEntryRepository timeEntryRepository;
+    private @Mock TimeSegmentRepository timeSegmentRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
 
@@ -36,6 +41,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
     private LocalDateTime endTime;
     private Duration duration;
     private TimeEntry timeEntry;
+    private TimeSegment timeSegment;
 
     @BeforeEach
     void setUp() {
@@ -46,11 +52,15 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         this.endTime = LocalDateTime.parse(this.endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.duration = this.parseStringToDuration(this.durationStr);
 
+        this.timeSegment = new TimeSegment();
+        this.timeSegment.setTimeSegmentId("1");
+        this.timeSegment.setStartTime(startTime);
+        this.timeSegment.setEndTime(endTime);
+        this.timeSegment.setDuration(duration);
+
         this.timeEntry = new TimeEntry();
         this.timeEntry.setId(UUID.randomUUID().toString());
-        this.timeEntry.setStartTime(startTime);
-        this.timeEntry.setEndTime(endTime);
-        this.timeEntry.setDuration(duration);
+        this.timeEntry.setTimeSegmentList(List.of(this.timeSegment));
     }
 
     @Test
@@ -58,6 +68,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         // given
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
                 .thenReturn("some_user_id");
+        when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
+                .thenReturn(this.timeSegment);
         when(this.timeEntryRepository.save(isA(TimeEntry.class)))
                 .thenReturn(this.timeEntry);
 
@@ -68,6 +80,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         assertThat(timeEntryId)
                 .isNotNull();
 
+        verify(this.timeSegmentRepository, times(1))
+                .save(isA(TimeSegment.class));
         verify(this.timeEntryRepository, times(1))
                 .save(isA(TimeEntry.class));
     }
@@ -132,7 +146,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
     }*/
 
     @Test
-    public void continueTrackingTimeEntryTest() {/*
+    public void continueTrackingTimeEntryTest() {
+        /*
         // Given
         String timeEntryId = "test-id";
         String userId = "test-user-id";
@@ -176,6 +191,21 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
 
         verify(this.timeEntryRepository, times(1))
                 .save(any(TimeEntry.class));*/
+        // given
+        String timeEntryId = "some_time_entry";
+        String userId = "some_user_id";
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
+                .thenReturn(userId);
+        when(this.timeEntryRepository.findByUserIdAndId(timeEntryId, userId))
+                .thenReturn(this.timeEntry);
+
+        // when
+        TimeEntryDTO result = this.timeEntryTrackingService.continueTrackingTimeEntry(timeEntryId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.startTime())
+                .isEqualTo("2024-05-11 10:30:00");
     }
 
 }
