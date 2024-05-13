@@ -25,7 +25,6 @@ public class TimeSegment {
     private Duration duration;
 
     @ManyToOne
-    @JoinColumn(name = "time_entry_id")
     private TimeEntry timeEntry;
 
 }
