@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SuppressWarnings("unused")
 @WebMvcTest(TimeEntryTrackingController.class) /* since this is not in integration test, rather controller unit test */
 @EnableConfigurationProperties /* to use application.yml-test file */
 @ActiveProfiles("test")

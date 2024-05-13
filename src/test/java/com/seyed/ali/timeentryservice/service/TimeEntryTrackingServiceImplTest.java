@@ -2,7 +2,6 @@ package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
@@ -21,6 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 @ExtendWith(MockitoExtension.class)
 class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
 
