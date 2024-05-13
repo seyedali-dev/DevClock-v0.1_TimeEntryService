@@ -150,60 +150,6 @@ class TimeEntryControllerTest {
     }
 
     @Test
-    public void startTrackingTimeEntryTest() throws Exception {
-        // given
-        String timeEntryId = "some_time_entry_id";
-        when(this.timeEntryService.startTrackingTimeEntry())
-                .thenReturn(timeEntryId);
-
-        // when
-        ResultActions response = this.mockMvc.perform(
-                post(this.baseUrl + "/track/start")
-                        .accept(APPLICATION_JSON)
-                        .contentType(APPLICATION_JSON)
-                        .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
-        );
-
-        // then
-        response.andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.flag", is(true)))
-                .andExpect(jsonPath("$.httpStatus", is("CREATED")))
-                .andExpect(jsonPath("$.message", is("Time tracking started...")))
-                .andExpect(jsonPath("$.data", is(timeEntryId)))
-        ;
-    }
-
-    @Test
-    public void stopTrackingTimeEntryTest() throws Exception {
-        // given
-        TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
-        String timeEntryId = timeEntryDTO.id();
-        when(this.timeEntryService.stopTrackingTimeEntry(timeEntryId))
-                .thenReturn(timeEntryDTO);
-
-        // when
-        ResultActions response = this.mockMvc.perform(
-                put(this.baseUrl + "/track/stop/" + timeEntryId)
-                        .accept(APPLICATION_JSON)
-                        .contentType(APPLICATION_JSON)
-                        .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
-        );
-
-        // then
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.flag", is(true)))
-                .andExpect(jsonPath("$.httpStatus", is("OK")))
-                .andExpect(jsonPath("$.message", is("Time tracking stopped.")))
-                .andExpect(jsonPath("$.data.id", is(timeEntryId)))
-                .andExpect(jsonPath("$.data.startTime", is(timeEntryDTO.startTime())))
-                .andExpect(jsonPath("$.data.endTime", is(timeEntryDTO.endTime())))
-                .andExpect(jsonPath("$.data.duration", is(timeEntryDTO.duration())))
-        ;
-    }
-
-    @Test
     public void updateTimeEntryTest() throws Exception {
         // Given
         String id = "1";

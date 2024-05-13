@@ -14,14 +14,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
 public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements TimeEntryService {
 
     private final TimeEntryRepository timeEntryRepository;
-    private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
 
     public TimeEntryServiceImpl(
@@ -31,7 +29,6 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
     ) {
         super(authenticationServiceClient, timeParser);
         this.timeEntryRepository = timeEntryRepository;
-        this.authenticationServiceClient = authenticationServiceClient;
         this.timeParser = timeParser;
     }
 
@@ -61,39 +58,6 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
         TimeEntry timeEntry = createTimeEntry(timeEntryDTO);
         this.timeEntryRepository.save(timeEntry);
         return this.timeParser.parseTimeToString(timeEntry.getStartTime(), timeEntry.getEndTime(), timeEntry.getDuration());
-    }
-
-    // TODO: Implement REDIS for caching the `start_time`
-    @Override
-    public String startTrackingTimeEntry() {
-        TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
-        timeEntry.setStartTime(LocalDateTime.now());
-        timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
-        this.timeEntryRepository.save(timeEntry);
-        return timeEntry.getId();
-    }
-
-    // TODO: Implement REDIS for getting the cached `start_time`
-    @Override
-    public TimeEntryDTO stopTrackingTimeEntry(String timeEntryId) {
-        LocalDateTime endTime = LocalDateTime.now();
-
-        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
-        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndId(currentLoggedInUsersId, timeEntryId);
-        timeEntry.setEndTime(endTime);
-
-        LocalDateTime startTime = timeEntry.getStartTime();
-        Duration duration = Duration.between(startTime, endTime);
-
-        timeEntry.setDuration(duration);
-
-        this.timeEntryRepository.save(timeEntry);
-
-        String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
-        String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
-        String durationStr = this.timeParser.parseDurationToString(timeEntry.getDuration());
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
     }
 
     @Override

@@ -48,28 +48,6 @@ public class TimeEntryController {
         );
     }
 
-    @PostMapping("/track/start")
-    @ResponseStatus(CREATED)
-    public Result startTrackingTimeEntry() {
-        return new Result(
-                true,
-                CREATED,
-                "Time tracking started...",
-                this.timeEntryService.startTrackingTimeEntry()
-        );
-    }
-
-    @PutMapping("/track/stop/{timeEntryId}")
-    @ResponseStatus(OK)
-    public Result stopTrackingTimeEntry(@PathVariable String timeEntryId) {
-        return new Result(
-                true,
-                OK,
-                "Time tracking stopped.",
-                this.timeEntryService.stopTrackingTimeEntry(timeEntryId)
-        );
-    }
-
     @PutMapping("/{timeEntryId}")
     @ResponseStatus(OK)
     public Result updateTimeEntryManually(@PathVariable String timeEntryId, @RequestBody TimeEntryDTO timeEntryDTO) {
