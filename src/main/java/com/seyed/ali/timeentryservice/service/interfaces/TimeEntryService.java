@@ -1,18 +1,20 @@
 package com.seyed.ali.timeentryservice.service.interfaces;
 
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 
 import java.util.List;
 
 public interface TimeEntryService {
 
-    List<TimeEntryDTO> getTimeEntries();
+    List<TimeEntryResponse> getTimeEntries();
 
-    TimeEntryDTO getUsersTimeEntry(String userId);
+    TimeEntryResponse getUsersTimeEntry(String userId);
 
     String addTimeEntryManually(TimeEntryDTO timeEntryDTODTO);
 
     TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
 
     void deleteTimeEntry(String id);
+
 }
