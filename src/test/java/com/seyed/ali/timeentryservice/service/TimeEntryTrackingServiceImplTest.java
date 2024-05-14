@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,153 +60,131 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         this.timeSegment.setDuration(duration);
 
         this.timeEntry = new TimeEntry();
-        this.timeEntry.setId(UUID.randomUUID().toString());
-        this.timeEntry.setTimeSegmentList(List.of(this.timeSegment));
+        this.timeEntry.setTimeEntryId(UUID.randomUUID().toString());
+//        this.timeEntry.setTimeSegmentList(List.of(this.timeSegment)); // this is immutable; so we cannot add or remove any more data
+        this.timeEntry.setTimeSegmentList(new ArrayList<>(List.of(this.timeSegment)));
     }
 
     @Test
     public void startTrackingTimeEntryTest() {
-        // given
-        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
-                .thenReturn("some_user_id");
-        when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
-                .thenReturn(this.timeSegment);
-        when(this.timeEntryRepository.save(isA(TimeEntry.class)))
-                .thenReturn(this.timeEntry);
+        // Arrange
+        String userId = "testUserId";
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
 
-        // when
+        TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setStartTime(LocalDateTime.now());
+        timeSegment.setEndTime(null);
+        timeSegment.setDuration(Duration.ZERO);
+
+        TimeEntry timeEntry = new TimeEntry();
+        timeEntry.setUserId(userId);
+        timeEntry.getTimeSegmentList().add(timeSegment);
+
+        when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
+
+        // Act
         String timeEntryId = this.timeEntryTrackingService.startTrackingTimeEntry();
+        System.out.println(timeEntryId);
 
-        // then
-        assertThat(timeEntryId)
-                .isNotNull();
+        // Assert
+        TimeSegment firstTimeSegment = timeEntry.getTimeSegmentList().getFirst();
+        assertThat(timeEntryId).isNotNull();
+        assertThat(timeEntry.getTimeSegmentList()).hasSize(1);
+        assertThat(firstTimeSegment.getStartTime()).isNotNull();
+        assertThat(firstTimeSegment.getEndTime()).isNull();
+        assertThat(firstTimeSegment.getDuration()).isEqualTo(Duration.ZERO);
 
-        verify(this.timeSegmentRepository, times(1))
-                .save(isA(TimeSegment.class));
         verify(this.timeEntryRepository, times(1))
                 .save(isA(TimeEntry.class));
     }
 
-    /*@Test // TODO: implement testing for this - it Fu**d me up :(
+    @Test
     public void stopTrackingTimeEntryTest() {
         // Arrange
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         String userId = "testUserId";
         LocalDateTime startTime = LocalDateTime.of(2024, 5, 11, 8, 0, 0);
-        LocalDateTime endTime = LocalDateTime.of(2024, 5, 11, 10, 0, 0);
+        LocalDateTime endTime = LocalDateTime.now();
+        String formattedEndTimeStr = endTime.format(formatter);
+        Duration duration = Duration.between(startTime, endTime);
+
+        TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setTimeSegmentId("1");
+        timeSegment.setStartTime(startTime);
+        timeSegment.setEndTime(endTime);
+        timeSegment.setDuration(duration);
 
         TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId("1");
-        timeEntry.setStartTime(this.startTime);
+        timeEntry.setTimeEntryId("1");
         timeEntry.setUserId(userId);
+        timeEntry.getTimeSegmentList().add(timeSegment);
 
-        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
-                .thenReturn(userId);
-
-        when(this.timeEntryRepository.findByUserIdAndId(isA(String.class), isA(String.class)))
-                .thenReturn(timeEntry);
-
-        when(this.timeEntryRepository.save(isA(TimeEntry.class)))
-                .thenReturn(timeEntry);
-
-        when(this.timeParser.parseLocalDateTimeToString(this.startTime))
-                .thenReturn(this.startTimeStr);
-
-        LocalDateTime fixedEndTime = this.endTime;
-        MockedStatic<LocalDateTime> localDateTimeMockedStatic = mockStatic(LocalDateTime.class);
-        localDateTimeMockedStatic
-                .when(LocalDateTime::now)
-                .thenReturn(fixedEndTime);
-        LocalDateTime endTimeNow = LocalDateTime.now();
-        String endTimeNowStr = this.parseLocalDateTimeToString(fixedEndTime);
-        when(this.timeParser.parseLocalDateTimeToString(endTimeNow))
-                .thenReturn(endTimeNowStr);
-
-        when(this.timeParser.parseDurationToString(isA(Duration.class)))
-                .thenReturn(this.durationStr);
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
+        when(this.timeEntryRepository.findByUserIdAndTimeEntryId(userId, timeEntry.getTimeEntryId())).thenReturn(timeEntry);
+        when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
+                .thenAnswer(invocation -> {
+                    LocalDateTime dateTime = invocation.getArgument(0);
+                    System.out.println("dateTime: " + dateTime);
+                    return dateTime.format(formatter);
+                });
+        when(this.timeParser.parseDurationToString(any(Duration.class))).thenReturn(duration.toString());
 
         // Act
-        TimeEntryDTO result = this.timeEntryService.stopTrackingTimeEntry(timeEntry.getId());
-        System.out.println(result);
+        TimeEntryDTO result = this.timeEntryTrackingService.stopTrackingTimeEntry(timeEntry.getTimeEntryId());
+        System.out.println("result: " + result);
 
         // Assert
-        assertThat(result)
-                .isNotNull();
-        assertThat(result.startTime())
-                .as("StartTimeString must be same")
-                .isEqualTo(this.startTimeStr);
-        assertThat(result.endTime())
-                .as("EndTimeString must be same")
-                .isEqualTo(this.endTimeStr);
-        assertThat(result.duration())
-                .as("DurationString must be same")
-                .isEqualTo(this.durationStr);
+        assertThat(result.startTime()).isEqualTo("2024-05-11 08:00:00");
+        assertThat(result.endTime()).isEqualTo(formattedEndTimeStr);
+        assertThat(result.duration()).isEqualTo(duration.toString());
 
-        verify(this.timeEntryRepository).save(timeEntry);
-
-        localDateTimeMockedStatic.close();
-    }*/
+        verify(this.timeSegmentRepository, times(1)).save(any(TimeSegment.class));
+        verify(this.timeEntryRepository, times(1)).save(any(TimeEntry.class));
+    }
 
     @Test
     public void continueTrackingTimeEntryTest() {
-        /*
-        // Given
-        String timeEntryId = "test-id";
-        String userId = "test-user-id";
-        LocalDateTime startTime = this.startTime.minusHours(2);
-        LocalDateTime endTime = this.endTime.minusHours(1);
+        // Arrange
+        String userId = "testUserId";
+        String timeEntryId = "1";
         LocalDateTime continueTime = LocalDateTime.now();
-        Duration previousDuration = Duration.between(startTime, endTime);
-        Duration newDuration = Duration.between(endTime, continueTime);
-        Duration totalDuration = previousDuration.plus(newDuration);
+        String formattedContinueTimeStr = continueTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setStartTime(continueTime);
+        timeSegment.setEndTime(null);
+        timeSegment.setDuration(Duration.ZERO);
 
         TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(timeEntryId);
+        timeEntry.setTimeEntryId(timeEntryId);
         timeEntry.setUserId(userId);
-        timeEntry.setStartTime(startTime);
-        timeEntry.setEndTime(endTime);
-        timeEntry.setDuration(totalDuration);
-        System.out.println(timeEntry);
 
-        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
-                .thenReturn(userId);
-        when(this.timeEntryRepository.findByUserIdAndId(userId, timeEntryId))
-                .thenReturn(timeEntry);
-        when(this.timeEntryRepository.save(any(TimeEntry.class)))
-                .thenReturn(timeEntry);
+        when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
+        when(this.timeEntryRepository.findByUserIdAndTimeEntryId(userId, timeEntryId)).thenReturn(timeEntry);
+        when(this.timeSegmentRepository.save(any(TimeSegment.class))).thenReturn(timeSegment);
+        when(this.timeEntryRepository.save(any(TimeEntry.class))).thenReturn(timeEntry);
         when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
-                .thenReturn("test-time");
-        when(this.timeParser.parseDurationToString(any(Duration.class)))
-                .thenReturn("test-duration");
+                .thenReturn(formattedContinueTimeStr);
 
-        // When
+        // Act
         TimeEntryDTO result = this.timeEntryTrackingService.continueTrackingTimeEntry(timeEntryId);
         System.out.println(result);
 
-        // Then
-        assertThat(result.startTime())
-                .isEqualTo("test-time");
-        assertThat(result.endTime())
-                .isEqualTo("test-time");
-        assertThat(result.duration())
-                .isEqualTo("test-duration");
+        // Assert
+        assertThat(result.timeEntryId()).isEqualTo(timeEntryId);
+        assertThat(result.startTime()).isEqualTo(formattedContinueTimeStr);
+        assertThat(result.endTime()).isNull();
+        assertThat(result.duration()).isNull();
 
-        verify(this.timeEntryRepository, times(1))
-                .save(any(TimeEntry.class));*/
-        // given
-        String timeEntryId = "some_time_entry";
-        String userId = "some_user_id";
-        when(this.authenticationServiceClient.getCurrentLoggedInUsersId())
-                .thenReturn(userId);
-        when(this.timeEntryRepository.findByUserIdAndId(timeEntryId, userId))
-                .thenReturn(this.timeEntry);
+        TimeSegment firstTimeSegment = timeEntry.getTimeSegmentList().getFirst();
+        assertThat(timeEntry.getTimeSegmentList()).hasSize(1);
+        assertThat(firstTimeSegment.getStartTime()).isNotNull();
+        assertThat(firstTimeSegment.getEndTime()).isNull();
+        assertThat(firstTimeSegment.getDuration()).isEqualTo(Duration.ZERO);
 
-        // when
-        TimeEntryDTO result = this.timeEntryTrackingService.continueTrackingTimeEntry(timeEntryId);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.startTime())
-                .isEqualTo("2024-05-11 10:30:00");
+        verify(this.timeSegmentRepository, times(1)).save(any(TimeSegment.class));
+        verify(this.timeEntryRepository, times(1)).save(any(TimeEntry.class));
     }
 
 }

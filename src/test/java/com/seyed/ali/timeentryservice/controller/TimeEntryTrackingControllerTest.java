@@ -82,7 +82,7 @@ class TimeEntryTrackingControllerTest {
     public void stopTrackingTimeEntryTest() throws Exception {
         // given
         TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
-        String timeEntryId = timeEntryDTO.id();
+        String timeEntryId = timeEntryDTO.timeEntryId();
         when(this.timeEntryTrackingService.stopTrackingTimeEntry(timeEntryId))
                 .thenReturn(timeEntryDTO);
 

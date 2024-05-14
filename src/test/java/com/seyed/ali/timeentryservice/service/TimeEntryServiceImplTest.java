@@ -59,7 +59,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
         this.timeSegment.setDuration(duration);
 
         this.timeEntry = new TimeEntry();
-        this.timeEntry.setId(UUID.randomUUID().toString());
+        this.timeEntry.setTimeEntryId(UUID.randomUUID().toString());
         this.timeEntry.getTimeSegmentList().add(this.timeSegment);
     }
 

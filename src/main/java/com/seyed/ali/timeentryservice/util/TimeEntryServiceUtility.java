@@ -21,7 +21,7 @@ public abstract class TimeEntryServiceUtility {
 
     public TimeEntry createTimeEntry(TimeEntryDTO timeEntryDTO) {
         TimeEntry timeEntry = new TimeEntry();
-        timeEntry.setId(UUID.randomUUID().toString());
+        timeEntry.setTimeEntryId(UUID.randomUUID().toString());
 
         LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
         LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());

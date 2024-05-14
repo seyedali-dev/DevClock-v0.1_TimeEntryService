@@ -44,7 +44,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
         return this.timeEntryRepository.findAll()
                 .stream()
                 .flatMap(timeEntry -> {
-                    timeEntryId.set(timeEntry.getId());
+                    timeEntryId.set(timeEntry.getTimeEntryId());
                     return timeEntry.getTimeSegmentList().stream();
                 })
                 .map(timeSegment -> {
@@ -62,7 +62,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
         String startTime = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
         String endTime = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
         String duration = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-        return new TimeEntryDTO(timeEntry.getId(), startTime, endTime, duration);
+        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTime, endTime, duration);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
             String endTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
             String durationString = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
 
-            return new TimeEntryDTO(timeEntry.getId(), startTimeString, endTimeString, durationString);
+            return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, durationString);
         } else throw new IllegalArgumentException("The provided id does not exist");
     }
 

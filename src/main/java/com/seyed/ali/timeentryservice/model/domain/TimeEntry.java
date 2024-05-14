@@ -1,5 +1,6 @@
 package com.seyed.ali.timeentryservice.model.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -18,9 +19,9 @@ import java.util.List;
 public class TimeEntry {
 
     @Id
-    private String id;
+    private String timeEntryId;
 
-    @OneToMany(mappedBy = "timeEntry")
+    @OneToMany(mappedBy = "timeEntry", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<TimeSegment> timeSegmentList = new ArrayList<>();
 
