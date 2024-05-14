@@ -2,13 +2,6 @@ package com.seyed.ali.timeentryservice.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-/*public record TimeEntryDTO(
-        String id,
-        String startTime, // in a specific format, e.g., "yyyy-MM-dd HH:mm"
-        String endTime, // in a specific format, e.g., "yyyy-MM-dd HH:mm"
-        String duration // in a specific format, e.g., "HH:mm:ss"
-) {
-}*/
 @Schema(description = "Time Entry Data Transfer Object")
 public record TimeEntryDTO(
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")

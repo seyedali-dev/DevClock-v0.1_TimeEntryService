@@ -48,59 +48,61 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
     // TODO: Implement REDIS for getting the cached `start_time`
     @Override
     public TimeEntryDTO stopTrackingTimeEntry(String timeEntryId) {
-        LocalDateTime endTime = LocalDateTime.now();
-
-        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
-        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
-
-        TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
-        LocalDateTime startTime = lastTimeSegment.getStartTime();
-        Duration duration = Duration.between(startTime, endTime);
-
-        TimeSegment timeSegment = new TimeSegment();
-        timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
-        timeSegment.setStartTime(startTime);
-        timeSegment.setEndTime(endTime);
-        timeSegment.setDuration(duration);
-        timeSegment.setTimeEntry(timeEntry);
-
-        this.timeSegmentRepository.save(timeSegment);
-
-        timeEntry.getTimeSegmentList().add(timeSegment);
-        this.timeEntryRepository.save(timeEntry);
-
-        // Calculate total duration
-        Duration totalDuration = timeEntry.getTimeSegmentList().stream()
-                .map(TimeSegment::getDuration)
-                .reduce(Duration.ZERO, Duration::plus);
-
-        String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
-        String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
-        String durationStr = this.timeParser.parseDurationToString(totalDuration);
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
+//        LocalDateTime endTime = LocalDateTime.now();
+//
+//        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
+//        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
+//
+//        TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
+//        LocalDateTime startTime = lastTimeSegment.getStartTime();
+//        Duration duration = Duration.between(startTime, endTime);
+//
+//        TimeSegment timeSegment = new TimeSegment();
+//        timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
+//        timeSegment.setStartTime(startTime);
+//        timeSegment.setEndTime(endTime);
+//        timeSegment.setDuration(duration);
+//        timeSegment.setTimeEntry(timeEntry);
+//
+//        this.timeSegmentRepository.save(timeSegment);
+//
+//        timeEntry.getTimeSegmentList().add(timeSegment);
+//        this.timeEntryRepository.save(timeEntry);
+//
+//        // Calculate total duration
+//        Duration totalDuration = timeEntry.getTimeSegmentList().stream()
+//                .map(TimeSegment::getDuration)
+//                .reduce(Duration.ZERO, Duration::plus);
+//
+//        String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
+//        String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
+//        String durationStr = this.timeParser.parseDurationToString(totalDuration);
+//        return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
+        return null;
     }
 
     // TODO: Implement REDIS for getting the cached `start_time`
     @Override
     public TimeEntryDTO continueTrackingTimeEntry(String timeEntryId) {
-        LocalDateTime continueTime = LocalDateTime.now();
-        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
-        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
-
-        TimeSegment timeSegment = TimeSegment.builder()
-                .timeSegmentId(UUID.randomUUID().toString())
-                .startTime(continueTime)
-                .endTime(null)
-                .duration(Duration.ZERO)
-                .timeEntry(timeEntry)
-                .build();
-        this.timeSegmentRepository.save(timeSegment);
-
-        timeEntry.getTimeSegmentList().add(timeSegment);
-        this.timeEntryRepository.save(timeEntry);
-
-        String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeSegment.getStartTime());
-        return new TimeEntryDTO(timeEntryId, startTimeStr, null, null);
+//        LocalDateTime continueTime = LocalDateTime.now();
+//        String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
+//        TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
+//
+//        TimeSegment timeSegment = TimeSegment.builder()
+//                .timeSegmentId(UUID.randomUUID().toString())
+//                .startTime(continueTime)
+//                .endTime(null)
+//                .duration(Duration.ZERO)
+//                .timeEntry(timeEntry)
+//                .build();
+//        this.timeSegmentRepository.save(timeSegment);
+//
+//        timeEntry.getTimeSegmentList().add(timeSegment);
+//        this.timeEntryRepository.save(timeEntry);
+//
+//        String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeSegment.getStartTime());
+//        return new TimeEntryDTO(timeEntryId, startTimeStr, null, null);
+        return null;
     }
 
 }

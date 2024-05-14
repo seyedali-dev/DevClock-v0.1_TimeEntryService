@@ -38,9 +38,11 @@ public abstract class TimeEntryServiceUtility {
         });
 
         TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
         timeSegment.setStartTime(startTime);
         timeSegment.setEndTime(endTime);
         timeSegment.setDuration(calculatedDuration);
+        timeSegment.setTimeEntry(timeEntry);
         this.timeSegmentRepository.save(timeSegment);
 
         timeEntry.getTimeSegmentList().add(timeSegment);

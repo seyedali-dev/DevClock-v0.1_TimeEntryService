@@ -4,6 +4,7 @@ import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.dto.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import com.seyed.ali.timeentryservice.util.TimeParser;
@@ -74,7 +75,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(this.durationStr);
 
         // when
-        List<TimeEntryDTO> result = this.timeEntryService.getTimeEntries();
+        List<TimeEntryResponse> result = this.timeEntryService.getTimeEntries();
         System.out.println(result);
 
         // then
@@ -83,7 +84,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .isNotNull()
                 .as("Must have 1 value")
                 .hasSize(1);
-        assertThat(result.getFirst().duration())
+        assertThat(result.getFirst().timeSegmentDTOList().getFirst().duration())
                 .as("Must be equal to = PT2H")
                 .isEqualTo(parseDurationToString(timeEntry.getTimeSegmentList().getLast().getDuration()));
     }
@@ -99,14 +100,14 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(this.durationStr);
 
         // when
-        TimeEntryDTO result = this.timeEntryService.getUsersTimeEntry("some_user_id");
+        TimeEntryResponse result = this.timeEntryService.getUsersTimeEntry("some_user_id");
         System.out.println(result);
 
         // then
         assertThat(result)
                 .as("Must not be null")
                 .isNotNull();
-        assertThat(result.duration())
+        assertThat(result.totalDuration())
                 .as("Must be equal to = PT2H")
                 .isEqualTo(parseDurationToString(this.timeSegment.getDuration()));
     }
