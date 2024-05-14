@@ -12,6 +12,7 @@ import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
 
     // TODO: Implement REDIS for caching the `start_time`
     @Override
-    public String startTrackingTimeEntry() {
+    public String startTrackingTimeEntry(boolean billable, BigDecimal hourlyRate) {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(UUID.randomUUID().toString());
         TimeSegment timeSegment = TimeSegment.builder()
@@ -46,6 +47,12 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
                 .duration(Duration.ZERO)
                 .timeEntry(timeEntry)
                 .build();
+
+        if (billable) {
+            timeEntry.setBillable(true);
+            if (hourlyRate != null)
+                timeEntry.setHourlyRate(hourlyRate);
+        }
 
         timeEntry.getTimeSegmentList().add(timeSegment);
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());

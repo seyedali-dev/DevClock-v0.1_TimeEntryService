@@ -1,7 +1,9 @@
 package com.seyed.ali.timeentryservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seyed.ali.timeentryservice.config.EurekaClientTestConfiguration;
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
+import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.service.TimeEntryTrackingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +19,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -42,6 +46,7 @@ class TimeEntryTrackingControllerTest {
     private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
 
     private @Autowired MockMvc mockMvc;
+    private @Autowired ObjectMapper objectMapper;
 
     private final String baseUrl = "/api/v1/time";
     private final List<TimeEntryDTO> timeEntries = new ArrayList<>();
@@ -57,14 +62,16 @@ class TimeEntryTrackingControllerTest {
     public void startTrackingTimeEntryTest() throws Exception {
         // given
         String timeEntryId = "some_time_entry_id";
-        when(this.timeEntryTrackingService.startTrackingTimeEntry())
+        when(this.timeEntryTrackingService.startTrackingTimeEntry(isA(Boolean.class), isA(BigDecimal.class)))
                 .thenReturn(timeEntryId);
+        String json = this.objectMapper.writeValueAsString(new TimeBillingDTO(true, BigDecimal.ONE));
 
         // when
         ResultActions response = this.mockMvc.perform(
                 post(this.baseUrl + "/track/start")
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
+                        .content(json)
                         .with(jwt().authorities(new SimpleGrantedAuthority("some_authority")))
         );
 

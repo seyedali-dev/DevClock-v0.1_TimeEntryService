@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -83,7 +84,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
 
         // Act
-        String timeEntryId = this.timeEntryTrackingService.startTrackingTimeEntry();
+        String timeEntryId = this.timeEntryTrackingService.startTrackingTimeEntry(false, BigDecimal.ONE);
         System.out.println(timeEntryId);
 
         // Assert

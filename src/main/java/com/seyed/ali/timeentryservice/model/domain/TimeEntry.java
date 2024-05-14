@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,8 @@ public class TimeEntry {
 
     @Id
     private String timeEntryId;
+    private boolean billable = false;
+    private BigDecimal hourlyRate = BigDecimal.TEN;
 
     @OneToMany(mappedBy = "timeEntry", cascade = CascadeType.ALL)
     @ToString.Exclude

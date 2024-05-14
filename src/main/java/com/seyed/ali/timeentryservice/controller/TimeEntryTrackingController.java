@@ -1,10 +1,13 @@
 package com.seyed.ali.timeentryservice.controller;
 
+import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -19,12 +22,14 @@ public class TimeEntryTrackingController {
 
     @PostMapping("/start")
     @ResponseStatus(CREATED)
-    public Result startTrackingTimeEntry() {
+    public Result startTrackingTimeEntry(@RequestBody TimeBillingDTO timeBillingDTO) {
+        boolean billable = timeBillingDTO.isBillable();
+        BigDecimal hourlyRate = timeBillingDTO.getHourlyRate();
         return new Result(
                 true,
                 CREATED,
                 "Time tracking started...",
-                this.timeEntryService.startTrackingTimeEntry()
+                this.timeEntryService.startTrackingTimeEntry(billable, hourlyRate)
         );
     }
 
