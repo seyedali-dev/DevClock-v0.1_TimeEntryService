@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,13 +59,13 @@ class TimeEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00");
         this.timeEntries.add(timeEntryDTO);
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, "02:00:00");
+        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00");
         this.timeEntriesResponse.add(timeEntryResponse);
     }
 

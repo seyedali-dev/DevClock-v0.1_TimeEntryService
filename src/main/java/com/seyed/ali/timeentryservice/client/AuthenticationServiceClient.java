@@ -16,12 +16,11 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class AuthenticationServiceClient {
 
-    private @Value("${authentication.service.user-persistence-controller.base-url}") String authenticationServiceClient_BaseUrl;
-    private @Value("${authentication.service.user-persistence-controller.handle-user-url}") String authenticationServiceClient_HandleUserUrl;
-
     private final WebClient.Builder webClientBuilder;
     private final KeycloakSecurityUtil keycloakSecurityUtil;
     private final ObjectMapper objectMapper;
+    private @Value("${authentication.service.user-persistence-controller.base-url}") String authenticationServiceClient_BaseUrl;
+    private @Value("${authentication.service.user-persistence-controller.handle-user-url}") String authenticationServiceClient_HandleUserUrl;
     private WebClient webClient;
 
     @PostConstruct

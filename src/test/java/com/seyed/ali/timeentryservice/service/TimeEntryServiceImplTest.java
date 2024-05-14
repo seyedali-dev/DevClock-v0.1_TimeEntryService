@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -114,7 +115,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
     @Test
     public void addTimeEntryManuallyTest_WithDuration() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, this.durationStr);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr);
 
         when(this.timeParser.parseStringToLocalDateTime(this.startTimeStr))
                 .thenReturn(this.startTime);
@@ -147,7 +148,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     @Test
     public void addTimeEntryManuallyTest_WithoutDuration() {
         // Given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, null);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), null);
 
         when(this.timeParser.parseStringToLocalDateTime(this.startTimeStr))
                 .thenReturn(this.startTime);
@@ -177,7 +178,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     public void updateTimeEntryTest() {
         // Given
         String id = "Some_timeEntry_id";
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, this.durationStr);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr);
 
         when(this.timeEntryRepository.findById(id))
                 .thenReturn(Optional.of(this.timeEntry));
