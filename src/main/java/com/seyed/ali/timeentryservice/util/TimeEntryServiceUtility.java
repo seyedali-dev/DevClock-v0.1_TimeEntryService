@@ -49,4 +49,11 @@ public abstract class TimeEntryServiceUtility {
         return timeEntry;
     }
 
+    public TimeEntryDTO getTimeEntryDTO(TimeEntry timeEntry, TimeSegment lastTimeSegment, String startTimeString) {
+        String endTimeString = lastTimeSegment.getEndTime() != null ? this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime()) : null;
+        String durationString = lastTimeSegment.getDuration() != null ? this.timeParser.parseDurationToString(lastTimeSegment.getDuration()) : null;
+
+        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, durationString);
+    }
+
 }

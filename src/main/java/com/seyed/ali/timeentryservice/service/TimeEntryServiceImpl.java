@@ -49,8 +49,8 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
                 })
                 .map(timeSegment -> {
                     String startTimeString = this.timeParser.parseLocalDateTimeToString(timeSegment.getStartTime());
-                    String endTimeString = this.timeParser.parseLocalDateTimeToString(timeSegment.getEndTime());
-                    String durationString = this.timeParser.parseDurationToString(timeSegment.getDuration());
+                    String endTimeString = timeSegment.getEndTime() != null ? this.timeParser.parseLocalDateTimeToString(timeSegment.getEndTime()) : null;
+                    String durationString = timeSegment.getDuration() != null ? this.timeParser.parseDurationToString(timeSegment.getDuration()) : null;
                     return new TimeEntryDTO(timeEntryId.get(), startTimeString, endTimeString, durationString);
                 }).toList();
     }
@@ -60,15 +60,14 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
         TimeEntry timeEntry = this.timeEntryRepository.findByUserId(userId);
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
         String startTime = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
-        String endTime = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
-        String duration = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTime, endTime, duration);
+        return getTimeEntryDTO(timeEntry, lastTimeSegment, startTime);
     }
 
     @Override
     public String addTimeEntryManually(TimeEntryDTO timeEntryDTO) {
         TimeEntry timeEntry = createTimeEntry(timeEntryDTO);
         this.timeEntryRepository.save(timeEntry);
+
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
         return this.timeParser.parseTimeToString(lastTimeSegment.getStartTime(), lastTimeSegment.getEndTime(), lastTimeSegment.getDuration());
     }
@@ -83,26 +82,25 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
 
             LocalDateTime startTime = lastTimeSegment.getStartTime();
             LocalDateTime endTime = lastTimeSegment.getEndTime();
+            Duration duration = lastTimeSegment.getDuration();
 
             if (timeEntryDTO.startTime() != null)
                 startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
             if (timeEntryDTO.endTime() != null)
                 endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());
-            Duration calculatedDuration = Duration.between(startTime, endTime);
+            if (timeEntryDTO.duration() != null)
+                duration = this.timeParser.parseStringToDuration(timeEntryDTO.duration());
 
             lastTimeSegment.setStartTime(startTime);
             lastTimeSegment.setEndTime(endTime);
-            lastTimeSegment.setDuration(calculatedDuration);
+            lastTimeSegment.setDuration(duration);
             this.timeSegmentRepository.save(lastTimeSegment);
 
             timeEntry.getTimeSegmentList().add(lastTimeSegment);
             this.timeEntryRepository.save(timeEntry);
 
             String startTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
-            String endTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
-            String durationString = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-
-            return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, durationString);
+            return getTimeEntryDTO(timeEntry, lastTimeSegment, startTimeString);
         } else throw new IllegalArgumentException("The provided id does not exist");
     }
 

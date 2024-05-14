@@ -161,6 +161,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         // When
         String result = this.timeEntryService.addTimeEntryManually(timeEntryDTO);
+        System.out.println(result);
 
         // Then
         assertThat(result)
@@ -183,8 +184,6 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(this.endTime);
         when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
                 .thenReturn(this.timeSegment);
-        when(this.timeParser.parseLocalDateTimeToString(this.startTime))
-                .thenReturn(this.startTimeStr);
         when(this.timeParser.parseLocalDateTimeToString(this.endTime))
                 .thenReturn(this.endTimeStr);
         when(this.timeParser.parseDurationToString(isA(Duration.class)))
