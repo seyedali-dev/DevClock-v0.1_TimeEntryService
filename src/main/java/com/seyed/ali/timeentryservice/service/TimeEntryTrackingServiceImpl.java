@@ -72,7 +72,7 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
         LocalDateTime startTime = lastTimeSegment.getStartTime();
         Duration duration = Duration.between(startTime, endTime);
 
-        createTimeEntry(endTime, timeEntry, startTime, duration);
+        this.createTimeInfo(timeEntry, startTime, endTime, duration);
         this.timeEntryRepository.save(timeEntry);
 
         // Calculate total duration
@@ -81,7 +81,7 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(startTime);
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
         String durationStr = this.timeParser.parseDurationToString(totalDuration);
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, durationStr);
+        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr);
     }
 
     // TODO: Implement REDIS for getting the cached `start_time`
@@ -90,6 +90,10 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
         LocalDateTime continueTime = LocalDateTime.now();
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
+
+        String hourlyRate = null;
+        if (timeEntry.getHourlyRate() != null)
+            hourlyRate = timeEntry.getHourlyRate().toString();
 
         TimeSegment timeSegment = TimeSegment.builder()
                 .timeSegmentId(UUID.randomUUID().toString())
@@ -103,7 +107,7 @@ public class TimeEntryTrackingServiceImpl extends TimeEntryServiceUtility implem
         this.timeEntryRepository.save(timeEntry);
 
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeSegment.getStartTime());
-        return new TimeEntryDTO(timeEntryId, startTimeStr, null, null);
+        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null);
     }
 
 }

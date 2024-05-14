@@ -7,6 +7,7 @@ import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -20,8 +21,14 @@ public abstract class TimeEntryServiceUtility {
     private final TimeParser timeParser;
 
     public TimeEntry createTimeEntry(TimeEntryDTO timeEntryDTO) {
+        boolean billable = timeEntryDTO.billable();
+        String hourlyRate = timeEntryDTO.hourlyRate() != null ? timeEntryDTO.hourlyRate() : null;
+
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(UUID.randomUUID().toString());
+        timeEntry.setBillable(billable);
+        if (hourlyRate != null)
+            timeEntry.setHourlyRate(new BigDecimal(hourlyRate));
 
         LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
         LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());
@@ -37,13 +44,13 @@ public abstract class TimeEntryServiceUtility {
             }
         });
 
-        this.createTimeEntry(endTime, timeEntry, startTime, calculatedDuration);
+        this.createTimeInfo(timeEntry, startTime, endTime, calculatedDuration);
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
 
         return timeEntry;
     }
 
-    public void createTimeEntry(LocalDateTime endTime, TimeEntry timeEntry, LocalDateTime startTime, Duration duration) {
+    public void createTimeInfo(TimeEntry timeEntry, LocalDateTime startTime, LocalDateTime endTime, Duration duration) {
         TimeSegment timeSegment = new TimeSegment();
         timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
         timeSegment.setStartTime(startTime);
@@ -58,8 +65,10 @@ public abstract class TimeEntryServiceUtility {
     public TimeEntryDTO createTimeEntryDTO(TimeEntry timeEntry, TimeSegment lastTimeSegment, String startTimeString) {
         String endTimeString = lastTimeSegment.getEndTime() != null ? this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime()) : null;
         String durationString = lastTimeSegment.getDuration() != null ? this.timeParser.parseDurationToString(lastTimeSegment.getDuration()) : null;
+        boolean billable = timeEntry.isBillable();
+        String hourlyRate = timeEntry.getHourlyRate().toString();
 
-        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, durationString);
+        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, billable, hourlyRate, durationString);
     }
 
     public Duration getTotalDuration(TimeEntry timeEntry) {

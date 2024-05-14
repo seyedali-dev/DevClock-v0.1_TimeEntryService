@@ -44,6 +44,9 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
 
         List<TimeEntry> timeEntryList = this.timeEntryRepository.findAll();
         for (TimeEntry timeEntry : timeEntryList) {
+            String hourlyRate = null;
+            if (timeEntry.getHourlyRate() != null)
+                hourlyRate = timeEntry.getHourlyRate().toString();
             List<TimeSegmentDTO> timeSegmentDTOList = new ArrayList<>();
             List<TimeSegment> timeSegmentList = timeEntry.getTimeSegmentList();
             Duration totalDuration = this.getTotalDuration(timeEntry);
@@ -55,7 +58,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
                 String totalDurationStr = this.timeParser.parseDurationToString(totalDuration);
 
                 TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO(timeSegment.getTimeSegmentId(), startTimeStr, endTimeStr, durationStr, timeEntry.getUserId());
-                timeEntryResponse = new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, totalDurationStr);
+                timeEntryResponse = new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr);
                 timeSegmentDTOList.add(timeSegmentDTO);
             }
             timeEntryResponseList.add(timeEntryResponse);
@@ -67,12 +70,17 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
     public TimeEntryResponse getUsersTimeEntry(String userId) {
         List<TimeSegmentDTO> timeSegmentDTOList = new ArrayList<>();
         String totalDurationStr = null;
+        String hourlyRate = null;
 
         TimeEntry timeEntry = this.timeEntryRepository.findByUserId(userId);
+
+        if (timeEntry.getHourlyRate() != null)
+            hourlyRate = timeEntry.getHourlyRate().toString();
+
         List<TimeSegment> timeSegmentList = timeEntry.getTimeSegmentList();
         if (timeSegmentList.isEmpty()) {
             totalDurationStr = this.timeParser.parseDurationToString(timeEntry.getTimeSegmentList().getLast().getDuration());
-            return new TimeEntryResponse(timeEntry.getTimeEntryId(), null, totalDurationStr);
+            return new TimeEntryResponse(timeEntry.getTimeEntryId(), null, timeEntry.isBillable(), hourlyRate, totalDurationStr);
         }
         Duration totalDuration = timeSegmentList.stream()
                 .map(TimeSegment::getDuration)
@@ -91,7 +99,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
             timeSegmentDTOList.add(timeSegmentDTO);
         }
 
-        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, totalDurationStr);
+        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr);
 
     }
 
@@ -133,7 +141,7 @@ public class TimeEntryServiceImpl extends TimeEntryServiceUtility implements Tim
             this.timeEntryRepository.save(timeEntry);
 
             String startTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
-            return createTimeEntryDTO(timeEntry, lastTimeSegment, startTimeString);
+            return this.createTimeEntryDTO(timeEntry, lastTimeSegment, startTimeString);
         } else throw new IllegalArgumentException("The provided id does not exist");
     }
 
