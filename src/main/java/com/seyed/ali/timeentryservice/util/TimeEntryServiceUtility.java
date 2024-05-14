@@ -37,25 +37,35 @@ public abstract class TimeEntryServiceUtility {
             }
         });
 
-        TimeSegment timeSegment = new TimeSegment();
-        timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
-        timeSegment.setStartTime(startTime);
-        timeSegment.setEndTime(endTime);
-        timeSegment.setDuration(calculatedDuration);
-        timeSegment.setTimeEntry(timeEntry);
-        this.timeSegmentRepository.save(timeSegment);
-
-        timeEntry.getTimeSegmentList().add(timeSegment);
+        this.createTimeEntry(endTime, timeEntry, startTime, calculatedDuration);
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
 
         return timeEntry;
     }
 
-    public TimeEntryDTO getTimeEntryDTO(TimeEntry timeEntry, TimeSegment lastTimeSegment, String startTimeString) {
+    public void createTimeEntry(LocalDateTime endTime, TimeEntry timeEntry, LocalDateTime startTime, Duration duration) {
+        TimeSegment timeSegment = new TimeSegment();
+        timeSegment.setTimeSegmentId(UUID.randomUUID().toString());
+        timeSegment.setStartTime(startTime);
+        timeSegment.setEndTime(endTime);
+        timeSegment.setDuration(duration);
+        timeSegment.setTimeEntry(timeEntry);
+        this.timeSegmentRepository.save(timeSegment);
+
+        timeEntry.getTimeSegmentList().add(timeSegment);
+    }
+
+    public TimeEntryDTO createTimeEntryDTO(TimeEntry timeEntry, TimeSegment lastTimeSegment, String startTimeString) {
         String endTimeString = lastTimeSegment.getEndTime() != null ? this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime()) : null;
         String durationString = lastTimeSegment.getDuration() != null ? this.timeParser.parseDurationToString(lastTimeSegment.getDuration()) : null;
 
         return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeString, durationString);
+    }
+
+    public Duration getTotalDuration(TimeEntry timeEntry) {
+        return timeEntry.getTimeSegmentList().stream()
+                .map(TimeSegment::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
     }
 
 }

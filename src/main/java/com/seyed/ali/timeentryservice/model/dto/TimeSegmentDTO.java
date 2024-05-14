@@ -19,8 +19,6 @@ public record TimeSegmentDTO(String timeSegmentId,
                              @Schema(requiredMode = Schema.RequiredMode.AUTO, description = "Duration of the time entry in the format HH:mm:ss", example = "02:00:00")
                              String duration,
 
-                             @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")
-                             String timeEntryId,
                              @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the user associated with time entry", example = "12345")
                              String userId) implements Serializable {
 }

@@ -1,5 +1,6 @@
-package com.seyed.ali.timeentryservice.model.dto;
+package com.seyed.ali.timeentryservice.model.dto.response;
 
+import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

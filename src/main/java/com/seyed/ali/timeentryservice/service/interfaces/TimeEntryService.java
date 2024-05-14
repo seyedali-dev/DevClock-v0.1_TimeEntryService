@@ -1,7 +1,7 @@
 package com.seyed.ali.timeentryservice.service.interfaces;
 
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryResponse;
+import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 
 import java.util.List;
 

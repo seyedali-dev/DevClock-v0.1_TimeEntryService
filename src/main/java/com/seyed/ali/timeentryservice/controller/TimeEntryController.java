@@ -1,6 +1,6 @@
 package com.seyed.ali.timeentryservice.controller;
 
-import com.seyed.ali.timeentryservice.model.dto.Result;
+import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
