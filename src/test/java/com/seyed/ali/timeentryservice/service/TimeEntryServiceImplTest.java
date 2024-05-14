@@ -183,8 +183,6 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .thenReturn(Optional.of(this.timeEntry));
         when(this.timeParser.parseStringToLocalDateTime(isA(String.class)))
                 .thenReturn(this.endTime);
-        when(this.timeSegmentRepository.save(isA(TimeSegment.class)))
-                .thenReturn(this.timeSegment);
         when(this.timeParser.parseLocalDateTimeToString(this.endTime))
                 .thenReturn(this.endTimeStr);
         when(this.timeParser.parseDurationToString(isA(Duration.class)))

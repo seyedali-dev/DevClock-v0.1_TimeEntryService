@@ -1,8 +1,14 @@
 package com.seyed.ali.timeentryservice.controller;
 
-import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.dto.response.Result;
+import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +24,13 @@ public class TimeEntryController {
     private final TimeEntryService timeEntryService;
 
     @GetMapping
+    @Operation(summary = "Get all time entries", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntryResponse.class)))
+            )
+    })
     public Result getTimeEntries() {
         return new Result(
                 true,
@@ -66,8 +79,7 @@ public class TimeEntryController {
         return new Result(
                 true,
                 NO_CONTENT,
-                "Time entry deleted successfully.",
-                null
+                "Time entry deleted successfully."
         );
     }
 

@@ -162,7 +162,6 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
 
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
         when(this.timeEntryRepository.findByUserIdAndTimeEntryId(userId, timeEntryId)).thenReturn(timeEntry);
-        when(this.timeSegmentRepository.save(any(TimeSegment.class))).thenReturn(timeSegment);
         when(this.timeEntryRepository.save(any(TimeEntry.class))).thenReturn(timeEntry);
         when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
                 .thenReturn(formattedContinueTimeStr);
@@ -183,7 +182,6 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         assertThat(firstTimeSegment.getEndTime()).isNull();
         assertThat(firstTimeSegment.getDuration()).isEqualTo(Duration.ZERO);
 
-        verify(this.timeSegmentRepository, times(1)).save(any(TimeSegment.class));
         verify(this.timeEntryRepository, times(1)).save(any(TimeEntry.class));
     }
 

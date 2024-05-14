@@ -100,10 +100,10 @@ class TimeEntryTrackingControllerTest {
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("OK")))
                 .andExpect(jsonPath("$.message", is("Time tracking stopped.")))
-                .andExpect(jsonPath("$.data.id", is(timeEntryId)))
-                .andExpect(jsonPath("$.data.startTime", is(timeEntryDTO.startTime())))
-                .andExpect(jsonPath("$.data.endTime", is(timeEntryDTO.endTime())))
-                .andExpect(jsonPath("$.data.duration", is(timeEntryDTO.duration())))
+                .andExpect(jsonPath("$.data.timeEntryId", is("1")))
+                .andExpect(jsonPath("$.data.startTime", is("2024-05-11 08:00:00")))
+                .andExpect(jsonPath("$.data.endTime", is("2024-05-11 10:00:00")))
+                .andExpect(jsonPath("$.data.duration", is("02:00:00")))
         ;
     }
 
