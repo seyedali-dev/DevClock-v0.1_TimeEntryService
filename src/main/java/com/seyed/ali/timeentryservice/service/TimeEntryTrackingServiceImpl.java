@@ -1,6 +1,7 @@
 package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
+import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
@@ -46,14 +47,24 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
     @Transactional
     public TimeEntryDTO stopTrackingTimeEntry(String timeEntryId) {
         LocalDateTime endTime = LocalDateTime.now();
+
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
+
+        // Check if the time entry has any time segments and if the last segment has a start time
+        if (timeEntry.getTimeSegmentList().isEmpty() || timeEntry.getTimeSegmentList().getLast().getStartTime() == null) {
+            // Handle the case where the start time is not set
+            throw new OperationNotSupportedException("Cannot stop time entry as the start time is not set.");
+        }
+
         this.timeEntryUtility.stopTimeEntry(timeEntry, endTime);
         this.timeEntryRepository.save(timeEntry);
+
         Duration totalDuration = this.timeEntryUtility.getTotalDuration(timeEntry);
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
         String durationStr = this.timeParser.parseDurationToString(totalDuration);
+
         return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr);
     }
 
