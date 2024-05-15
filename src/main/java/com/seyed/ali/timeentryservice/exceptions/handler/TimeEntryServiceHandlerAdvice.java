@@ -1,5 +1,7 @@
-package com.seyed.ali.timeentryservice.exceptions;
+package com.seyed.ali.timeentryservice.exceptions.handler;
 
+import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
+import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +30,16 @@ public class TimeEntryServiceHandlerAdvice {
                 false,
                 NOT_FOUND,
                 "The requested resource was not found.",
+                "ServerMessage - " + e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler({OperationNotSupportedException.class})
+    public ResponseEntity<Result> handleOperationNotSupportedException(OperationNotSupportedException e) {
+        return ResponseEntity.status(NOT_FOUND).body(new Result(
+                false,
+                NOT_FOUND,
+                "This operation is not supported.",
                 "ServerMessage - " + e.getMessage()
         ));
     }
