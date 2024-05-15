@@ -9,6 +9,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, String> {
 
     Optional<TimeEntry> findByUserId(String userId);
 
-    TimeEntry findByUserIdAndTimeEntryId(String userId, String id);
+    TimeEntry findByUserIdAndTimeEntryId(String userId, String timeEntryId);
 
 }

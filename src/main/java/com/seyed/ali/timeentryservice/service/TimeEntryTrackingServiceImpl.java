@@ -45,7 +45,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         LocalDateTime endTime = LocalDateTime.now();
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
-        this.timeEntryUtility.stopTimeEntry(timeEntry, endTime, this.timeParser);
+        this.timeEntryUtility.stopTimeEntry(timeEntry, endTime);
         this.timeEntryRepository.save(timeEntry);
         Duration totalDuration = this.timeEntryUtility.getTotalDuration(timeEntry);
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
@@ -63,7 +63,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         LocalDateTime continueTime = LocalDateTime.now();
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
-        this.timeEntryUtility.continueTimeEntry(timeEntry, continueTime, this.timeParser);
+        this.timeEntryUtility.continueTimeEntry(timeEntry, continueTime);
         this.timeEntryRepository.save(timeEntry);
         String hourlyRate = timeEntry.getHourlyRate() != null ? timeEntry.getHourlyRate().toString() : null;
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());

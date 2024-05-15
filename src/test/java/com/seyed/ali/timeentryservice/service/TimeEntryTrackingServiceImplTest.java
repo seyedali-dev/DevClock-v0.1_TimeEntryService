@@ -5,7 +5,7 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
-import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
+import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,9 +32,9 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
 
     private @InjectMocks TimeEntryTrackingServiceImpl timeEntryTrackingService;
     private @Mock TimeEntryRepository timeEntryRepository;
-    private @Mock TimeSegmentRepository timeSegmentRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
+    private @Mock TimeEntryUtility timeEntryUtility;
 
     private String startTimeStr;
     private String endTimeStr;
@@ -70,8 +70,6 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
     public void startTrackingTimeEntryTest() {
         // Arrange
         String userId = "testUserId";
-        when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
-
         TimeSegment timeSegment = new TimeSegment();
         timeSegment.setStartTime(LocalDateTime.now());
         timeSegment.setEndTime(null);
@@ -81,6 +79,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         timeEntry.setUserId(userId);
         timeEntry.getTimeSegmentList().add(timeSegment);
 
+        when(this.timeEntryUtility.createNewTimeEntry(isA(Boolean.class), isA(BigDecimal.class), isA(AuthenticationServiceClient.class)))
+                .thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
 
         // Act
@@ -140,7 +140,6 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         assertThat(result.endTime()).isEqualTo(formattedEndTimeStr);
         assertThat(result.duration()).isEqualTo(duration.toString());
 
-        verify(this.timeSegmentRepository, times(1)).save(any(TimeSegment.class));
         verify(this.timeEntryRepository, times(1)).save(any(TimeEntry.class));
     }
 
@@ -160,11 +159,15 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(timeEntryId);
         timeEntry.setUserId(userId);
+        timeEntry.getTimeSegmentList().add(timeSegment);
 
         when(this.authenticationServiceClient.getCurrentLoggedInUsersId()).thenReturn(userId);
-        when(this.timeEntryRepository.findByUserIdAndTimeEntryId(userId, timeEntryId)).thenReturn(timeEntry);
-        when(this.timeEntryRepository.save(any(TimeEntry.class))).thenReturn(timeEntry);
-        when(this.timeParser.parseLocalDateTimeToString(any(LocalDateTime.class)))
+        when(this.timeEntryRepository.findByUserIdAndTimeEntryId(isA(String.class), isA(String.class))).thenReturn(timeEntry);
+        doNothing()
+                .when(this.timeEntryUtility)
+                .continueTimeEntry(isA(TimeEntry.class), isA(LocalDateTime.class));
+        when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
+        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
                 .thenReturn(formattedContinueTimeStr);
 
         // Act

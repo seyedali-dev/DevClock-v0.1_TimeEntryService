@@ -6,7 +6,6 @@ import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
-import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TimeEntryUtility {
 
-    private final TimeSegmentRepository timeSegmentRepository;
     private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
 
@@ -147,9 +145,8 @@ public class TimeEntryUtility {
      *
      * @param timeEntry  The TimeEntry object to stop tracking.
      * @param endTime    The end time for the time entry.
-     * @param timeParser The TimeParser utility for parsing time-related values.
      */
-    public void stopTimeEntry(TimeEntry timeEntry, LocalDateTime endTime, TimeParser timeParser) {
+    public void stopTimeEntry(TimeEntry timeEntry, LocalDateTime endTime) {
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
         LocalDateTime startTime = lastTimeSegment.getStartTime();
         Duration duration = Duration.between(startTime, endTime);
@@ -161,9 +158,8 @@ public class TimeEntryUtility {
      *
      * @param timeEntry    The TimeEntry object to continue tracking.
      * @param continueTime The time to continue tracking.
-     * @param timeParser   The TimeParser utility for parsing time-related values.
      */
-    public void continueTimeEntry(TimeEntry timeEntry, LocalDateTime continueTime, TimeParser timeParser) {
+    public void continueTimeEntry(TimeEntry timeEntry, LocalDateTime continueTime) {
         TimeSegment timeSegment = TimeSegment.builder()
                 .timeSegmentId(UUID.randomUUID().toString())
                 .startTime(continueTime)

@@ -61,9 +61,9 @@ public class TimeEntryServiceImpl implements TimeEntryService {
      */
     @Override
     @Transactional
-    public TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO) {
-        TimeEntry timeEntry = this.timeEntryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("The provided id does not exist"));
+    public TimeEntryDTO updateTimeEntryManually(String timeEntryId, TimeEntryDTO timeEntryDTO) {
+        TimeEntry timeEntry = this.timeEntryRepository.findById(timeEntryId)
+                .orElseThrow(() -> new IllegalArgumentException("The provided timeEntryId does not exist"));
         this.timeEntryUtility.updateTimeEntry(timeEntry, timeEntryDTO, this.timeParser);
         this.timeEntryRepository.save(timeEntry);
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
