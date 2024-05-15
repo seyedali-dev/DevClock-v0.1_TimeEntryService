@@ -45,6 +45,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Shared Library -->
+        <dependency>
+            <groupId>com.seyed.ali</groupId>
+            <artifactId>Share-Lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Swagger -->
         <dependency>
             <groupId>org.springdoc</groupId>

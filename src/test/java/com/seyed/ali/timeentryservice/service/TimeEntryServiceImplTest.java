@@ -7,6 +7,7 @@ import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
+import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private @Mock TimeSegmentRepository timeSegmentRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
+    private @Mock TimeEntryUtility timeEntryUtility;
 
     private String startTimeStr;
     private String endTimeStr;
@@ -94,7 +96,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     void getUsersTimeEntry() {
         // given
         when(this.timeEntryRepository.findByUserId(isA(String.class)))
-                .thenReturn(this.timeEntry);
+                .thenReturn(Optional.ofNullable(this.timeEntry));
         when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
                 .thenReturn(this.endTimeStr);
         when(this.timeParser.parseDurationToString(isA(Duration.class)))
