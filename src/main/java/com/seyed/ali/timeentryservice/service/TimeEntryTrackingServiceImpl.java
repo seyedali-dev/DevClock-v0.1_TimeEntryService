@@ -10,6 +10,7 @@ import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -30,6 +31,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public String startTrackingTimeEntry(boolean billable, BigDecimal hourlyRate) {
         TimeEntry timeEntry = this.timeEntryUtility.createNewTimeEntry(billable, hourlyRate, this.authenticationServiceClient);
         this.timeEntryRepository.save(timeEntry);
@@ -41,6 +43,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public TimeEntryDTO stopTrackingTimeEntry(String timeEntryId) {
         LocalDateTime endTime = LocalDateTime.now();
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
@@ -59,6 +62,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public TimeEntryDTO continueTrackingTimeEntry(String timeEntryId) {
         LocalDateTime continueTime = LocalDateTime.now();
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();

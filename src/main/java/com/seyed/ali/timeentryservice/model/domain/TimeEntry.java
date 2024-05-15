@@ -21,11 +21,14 @@ public class TimeEntry {
 
     @Id
     private String timeEntryId;
+    @Builder.Default
     private boolean billable = false;
+    @Builder.Default
     private BigDecimal hourlyRate = BigDecimal.TEN;
 
     @OneToMany(mappedBy = "timeEntry", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<TimeSegment> timeSegmentList = new ArrayList<>();
 
     private String userId;

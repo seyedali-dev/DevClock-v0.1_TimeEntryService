@@ -1,6 +1,6 @@
 package com.seyed.ali.timeentryservice.service;
 
-import com.seyed.ali.sharelib.exceptions.ResourceNotFoundException;
+import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
