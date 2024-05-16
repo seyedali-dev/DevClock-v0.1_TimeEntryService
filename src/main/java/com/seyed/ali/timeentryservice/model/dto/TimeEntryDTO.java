@@ -1,8 +1,13 @@
 package com.seyed.ali.timeentryservice.model.dto;
 
+import com.seyed.ali.timeentryservice.annotation.OptionalField;
+import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+/**
+ * DTO for {@link TimeEntry}
+ */
 @Schema(description = "Time Entry Data Transfer Object")
 public record TimeEntryDTO(
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")
@@ -24,6 +29,7 @@ public record TimeEntryDTO(
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The hourly rate in BigDecimal format", example = "10.0")
         @DecimalMin(value = "0.0", inclusive = false, message = "hourlyRate must be greater than 0")
         @DecimalMax(value = "999.99", message = "hourlyRate must be less than 1000")
+        @OptionalField
         String hourlyRate,
 
         @Schema(requiredMode = Schema.RequiredMode.AUTO, description = "Duration of the time entry in the format HH:mm:ss", example = "02:00:00")
