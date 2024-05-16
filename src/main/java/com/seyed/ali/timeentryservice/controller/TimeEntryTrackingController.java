@@ -4,6 +4,7 @@ import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +23,14 @@ public class TimeEntryTrackingController {
     private final TimeEntryTrackingService timeEntryService;
 
     @PostMapping("/start")
-    public ResponseEntity<Result> startTrackingTimeEntry(@RequestBody TimeBillingDTO timeBillingDTO) {
-        boolean billable = timeBillingDTO.isBillable();
-        BigDecimal hourlyRate = timeBillingDTO.getHourlyRate();
+    public ResponseEntity<Result> startTrackingTimeEntry(@Valid @RequestBody TimeBillingDTO timeBillingDTO) {
+        boolean billable = false;
+        BigDecimal hourlyRate = BigDecimal.ZERO;
+
+        if (timeBillingDTO != null) {
+            billable = timeBillingDTO.billable();
+            hourlyRate = timeBillingDTO.hourlyRate();
+        }
         return ResponseEntity.status(CREATED).body(new Result(
                 true,
                 CREATED,

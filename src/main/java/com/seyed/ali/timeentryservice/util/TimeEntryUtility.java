@@ -1,6 +1,7 @@
 package com.seyed.ali.timeentryservice.util;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
+import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
@@ -14,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -179,19 +181,25 @@ public class TimeEntryUtility {
      * @return The created TimeSegment object.
      */
     public TimeSegment createTimeSegment(TimeEntryDTO timeEntryDTO, TimeEntry timeEntry) {
-        LocalDateTime startTime = timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
-        LocalDateTime endTime = timeEntryDTO.endTime() != null
-                ? timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime())
-                : null;
-        Duration duration = timeEntryDTO.duration() != null
-                ? timeParser.parseStringToDuration(timeEntryDTO.duration())
-                : null;
+        LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
+        LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());
+        Duration calculatedDuration = Duration.between(startTime, endTime);
+
+        // if the user entered `duration` field
+        Optional<Duration> durationOpt = Optional.ofNullable(timeEntryDTO.duration())
+                .map(this.timeParser::parseStringToDuration);
+
+        durationOpt.ifPresent(duration -> {
+            if (!calculatedDuration.equals(duration)) {
+                throw new OperationNotSupportedException("The provided endTime and duration are not consistent with the startTime");
+            }
+        });
 
         return TimeSegment.builder()
                 .timeSegmentId(UUID.randomUUID().toString())
                 .startTime(startTime)
                 .endTime(endTime)
-                .duration(duration)
+                .duration(calculatedDuration)
                 .timeEntry(timeEntry)
                 .build();
     }

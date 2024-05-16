@@ -24,7 +24,7 @@ public class TimeEntry {
     @Builder.Default
     private boolean billable = false;
     @Builder.Default
-    private BigDecimal hourlyRate = BigDecimal.TEN;
+    private BigDecimal hourlyRate = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "timeEntry", cascade = CascadeType.ALL)
     @ToString.Exclude

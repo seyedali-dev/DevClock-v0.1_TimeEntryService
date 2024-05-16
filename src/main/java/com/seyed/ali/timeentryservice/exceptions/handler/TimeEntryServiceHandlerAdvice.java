@@ -1,15 +1,24 @@
 package com.seyed.ali.timeentryservice.exceptions.handler;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.dto.response.Result;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class TimeEntryServiceHandlerAdvice {
@@ -41,6 +50,43 @@ public class TimeEntryServiceHandlerAdvice {
                 NOT_FOUND,
                 "This operation is not supported.",
                 "ServerMessage - " + e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<Result> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
+        Map<String, String> map = new HashMap<>(allErrors.size());
+        allErrors.forEach(objectError -> {
+            String defaultMessage = objectError.getDefaultMessage();
+            String field = ((FieldError) objectError).getField();
+            map.put(field, defaultMessage);
+        });
+
+        return ResponseEntity.status(BAD_REQUEST).body(new Result(
+                false,
+                BAD_REQUEST,
+                "Provided arguments are invalid, see data for details.",
+                map
+        ));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public ResponseEntity<Result> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        String errorMessage = "Invalid request format. Please check your request and try again.";
+        Throwable cause = e.getCause();
+
+        if (cause instanceof JsonParseException jsonParseException) {
+            errorMessage = "JSON parse error: " + jsonParseException.getOriginalMessage();
+        } else if (cause instanceof JsonMappingException jsonMappingException) {
+            errorMessage = "JSON mapping error at " + jsonMappingException.getPathReference() + ": " + jsonMappingException.getOriginalMessage();
+        }
+
+        return ResponseEntity.status(BAD_REQUEST).body(new Result(
+                false,
+                BAD_REQUEST,
+                errorMessage,
+                e.getMessage()
         ));
     }
 

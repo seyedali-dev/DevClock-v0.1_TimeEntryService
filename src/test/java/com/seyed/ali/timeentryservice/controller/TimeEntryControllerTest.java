@@ -45,16 +45,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {EurekaClientTestConfiguration.class}) /* to call the configuration in the test (for service-registry configs) */
 class TimeEntryControllerTest {
 
-    private @MockBean TimeEntryService timeEntryService;
-    private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
-
-    private @Autowired ObjectMapper objectMapper;
-    private @Autowired MockMvc mockMvc;
-
     private final String baseUrl = "/api/v1/time";
     private final List<TimeSegmentDTO> timeSegmentDTOList = new ArrayList<>();
     private final List<TimeEntryDTO> timeEntries = new ArrayList<>();
     private final List<TimeEntryResponse> timeEntriesResponse = new ArrayList<>();
+    private @MockBean TimeEntryService timeEntryService;
+    private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
+    private @Autowired ObjectMapper objectMapper;
+    private @Autowired MockMvc mockMvc;
     private TimeEntryResponse timeEntryResponse;
 
     @BeforeEach

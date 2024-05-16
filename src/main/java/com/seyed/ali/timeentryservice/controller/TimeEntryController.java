@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class TimeEntryController {
     }
 
     @PostMapping
-    public ResponseEntity<Result> addTimeEntryManually(@RequestBody TimeEntryDTO timeEntryDTO) {
+    public ResponseEntity<Result> addTimeEntryManually(@Valid @RequestBody TimeEntryDTO timeEntryDTO) {
         return ResponseEntity.status(CREATED).body(new Result(
                 true,
                 CREATED,
@@ -62,7 +63,7 @@ public class TimeEntryController {
     }
 
     @PutMapping("/{timeEntryId}")
-    public ResponseEntity<Result> updateTimeEntryManually(@PathVariable String timeEntryId, @RequestBody TimeEntryDTO timeEntryDTO) {
+    public ResponseEntity<Result> updateTimeEntryManually(@Valid @PathVariable String timeEntryId, @RequestBody TimeEntryDTO timeEntryDTO) {
         return ResponseEntity.ok(new Result(
                 true,
                 OK,

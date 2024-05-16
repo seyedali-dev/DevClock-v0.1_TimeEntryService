@@ -1,19 +1,20 @@
 package com.seyed.ali.timeentryservice.model.dto;
 
-import lombok.AllArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TimeBillingDTO {
+public record TimeBillingDTO(
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "A flag determining this time entry is billable", example = "true")
+        boolean billable,
 
-    private boolean billable;
-    private BigDecimal hourlyRate;
-
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The hourly rate in BigDecimal format", example = "10.0")
+        @DecimalMin(value = "0.0", inclusive = false, message = "hourlyRate must be greater than 0")
+        @DecimalMax(value = "999.99", message = "hourlyRate must be less than 1000")
+        BigDecimal hourlyRate
+) {
 }
