@@ -161,7 +161,7 @@ class TimeEntryControllerTest {
     @Test
     public void addTimeEntryManuallyTest() throws Exception {
         // given
-        TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00");
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
         String responseMessage = "startTime(" + timeEntryDTO.startTime() + ") " +
                 " | endTime (" + timeEntryDTO.endTime() + ")" +
