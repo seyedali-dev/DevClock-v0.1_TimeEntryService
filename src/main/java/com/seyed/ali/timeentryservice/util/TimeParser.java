@@ -42,7 +42,7 @@ public class TimeParser {
 
         String startTimeStr = startTime.format(formatter);
         String endTimeStr = endTime.format(formatter);
-        String durationStr = parseDurationToString(duration);
+        String durationStr = duration != null ? this.parseDurationToString(duration) : null;
 
         return "startTime (" + startTimeStr + ")" +
                 " | endTime (" + endTimeStr + ")" +

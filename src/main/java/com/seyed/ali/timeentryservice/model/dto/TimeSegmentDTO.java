@@ -1,12 +1,13 @@
 package com.seyed.ali.timeentryservice.model.dto;
 
+import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.io.Serializable;
 
 /**
- * DTO for {@link com.seyed.ali.timeentryservice.model.domain.TimeSegment}
+ * DTO for {@link TimeSegment}
  */
 @Schema
 @Builder
