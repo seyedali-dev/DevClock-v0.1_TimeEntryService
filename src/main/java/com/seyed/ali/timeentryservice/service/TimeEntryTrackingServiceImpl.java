@@ -3,6 +3,7 @@ package com.seyed.ali.timeentryservice.service;
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
@@ -10,6 +11,8 @@ import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +36,19 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
      */
     @Override
     @Transactional
-    public String startTrackingTimeEntry(boolean billable, BigDecimal hourlyRate) {
+    @CachePut(
+            cacheNames = "time-entry-cache",
+            key = "#result"
+    )
+    public String startTrackingTimeEntry(TimeBillingDTO timeBillingDTO) {
+        boolean billable = false;
+        BigDecimal hourlyRate = BigDecimal.ZERO;
+
+        if (timeBillingDTO != null) {
+            billable = timeBillingDTO.billable();
+            hourlyRate = timeBillingDTO.hourlyRate();
+        }
+
         TimeEntry timeEntry = this.timeEntryUtility.createNewTimeEntry(billable, hourlyRate, this.authenticationServiceClient);
         this.timeEntryRepository.save(timeEntry);
         return timeEntry.getTimeEntryId();

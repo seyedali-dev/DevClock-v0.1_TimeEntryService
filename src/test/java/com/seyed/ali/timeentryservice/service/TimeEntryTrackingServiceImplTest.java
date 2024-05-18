@@ -3,6 +3,7 @@ package com.seyed.ali.timeentryservice.service;
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
@@ -84,7 +85,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
 
         // Act
-        String timeEntryId = this.timeEntryTrackingService.startTrackingTimeEntry(false, BigDecimal.ONE);
+        TimeBillingDTO timeBillingDTO = new TimeBillingDTO(false, BigDecimal.ZERO);
+        String timeEntryId = this.timeEntryTrackingService.startTrackingTimeEntry(timeBillingDTO);
         System.out.println(timeEntryId);
 
         // Assert

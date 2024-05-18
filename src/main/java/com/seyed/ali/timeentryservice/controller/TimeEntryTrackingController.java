@@ -24,18 +24,11 @@ public class TimeEntryTrackingController {
 
     @PostMapping("/start")
     public ResponseEntity<Result> startTrackingTimeEntry(@Valid @RequestBody TimeBillingDTO timeBillingDTO) {
-        boolean billable = false;
-        BigDecimal hourlyRate = BigDecimal.ZERO;
-
-        if (timeBillingDTO != null) {
-            billable = timeBillingDTO.billable();
-            hourlyRate = timeBillingDTO.hourlyRate();
-        }
         return ResponseEntity.status(CREATED).body(new Result(
                 true,
                 CREATED,
                 "Time tracking started...",
-                this.timeEntryService.startTrackingTimeEntry(billable, hourlyRate)
+                this.timeEntryService.startTrackingTimeEntry(timeBillingDTO)
         ));
     }
 

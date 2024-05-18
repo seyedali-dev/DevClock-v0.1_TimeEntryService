@@ -34,3 +34,6 @@ build/
 
 ### Environment Variables ###
 src/main/resources/.env.properties
+
+### DB Data ###
+db/redis/

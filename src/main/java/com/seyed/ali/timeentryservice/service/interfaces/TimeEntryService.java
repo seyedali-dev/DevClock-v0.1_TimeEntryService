@@ -28,6 +28,15 @@ public interface TimeEntryService {
     TimeEntryResponse getUsersTimeEntry(String userId);
 
     /**
+     * Retrieves a specific time entry.
+     *
+     * @param timeEntryId The ID of the time entry.
+     * @return A TimeEntryResponse object representing the found time entry.
+     * @throws ResourceNotFoundException if the time entry is not found.
+     */
+    TimeEntryResponse getTimeEntryById(String timeEntryId);
+
+    /**
      * Adds a new time entry manually.
      *
      * @param timeEntryDTO The TimeEntryDTO object containing the time entry details.

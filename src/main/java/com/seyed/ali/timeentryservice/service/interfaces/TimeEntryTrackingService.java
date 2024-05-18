@@ -1,8 +1,7 @@
 package com.seyed.ali.timeentryservice.service.interfaces;
 
+import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-
-import java.math.BigDecimal;
 
 /**
  * Interface for Time Entry tracking service operations.
@@ -12,11 +11,10 @@ public interface TimeEntryTrackingService {
     /**
      * Starts tracking a new time entry.
      *
-     * @param billable   A boolean indicating whether the time entry is billable or not.
-     * @param hourlyRate The hourly rate for the time entry (if billable).
+     * @param timeBillingDTO   A dto class with: A boolean indicating whether the time entry is billable or not & The hourly rate for the time entry (if billable).
      * @return The ID of the created time entry.
      */
-    String startTrackingTimeEntry(boolean billable, BigDecimal hourlyRate);
+    String startTrackingTimeEntry(TimeBillingDTO timeBillingDTO);
 
     /**
      * Stops tracking an existing time entry.

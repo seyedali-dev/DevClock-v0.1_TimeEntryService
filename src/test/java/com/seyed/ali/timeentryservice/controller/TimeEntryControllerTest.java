@@ -135,7 +135,7 @@ class TimeEntryControllerTest {
 
         // When
         ResultActions resultActions = this.mockMvc.perform(
-                MockMvcRequestBuilders.get(this.baseUrl + "/" + userId)
+                MockMvcRequestBuilders.get(this.baseUrl + "/user/" + userId)
                         .accept(APPLICATION_JSON)
                         .with(jwt().authorities(new SimpleGrantedAuthority(some_authority)))
         );

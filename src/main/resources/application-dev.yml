@@ -44,6 +44,20 @@ spring:
         jwt:
           issuer-uri: http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
 
+--- # Redis
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis
+    cache-names:
+      - time-entry-cache
+    redis:
+      cache-null-values: true
+      time-to-live: ${REDIS_CACHE_TIME_TO_LIVE:600000} # 1 hour
+
 --- # Swagger
 springdoc:
   swagger-ui:

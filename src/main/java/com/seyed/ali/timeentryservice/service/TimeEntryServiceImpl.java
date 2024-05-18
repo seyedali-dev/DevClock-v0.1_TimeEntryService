@@ -11,6 +11,8 @@ import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,20 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         TimeEntry timeEntry = this.timeEntryRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
         return this.timeEntryUtility.convertToTimeEntryResponse(timeEntry);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+//    @Cacheable(
+//            cacheNames = "time-entry-cache",
+//            key = "#timeEntryId"
+//    )
+    public TimeEntryResponse getTimeEntryById(String timeEntryId) {
+        return this.timeEntryRepository.findById(timeEntryId)
+                .map(this.timeEntryUtility::convertToTimeEntryResponse)
+                .orElseThrow(()-> new ResourceNotFoundException("Time entry with ID: '" + timeEntryId +"' was not found."));
     }
 
     /**

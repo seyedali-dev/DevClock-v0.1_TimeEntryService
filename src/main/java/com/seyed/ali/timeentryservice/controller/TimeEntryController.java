@@ -42,13 +42,23 @@ public class TimeEntryController {
         ));
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<Result> getUsersTimeEntry(@PathVariable String userId) {
         return ResponseEntity.ok(new Result(
                 true,
                 OK,
                 "Time entry for user: '" + userId + "' :",
                 this.timeEntryService.getUsersTimeEntry(userId)
+        ));
+    }
+
+    @GetMapping("/{timeEntryId}")
+    public ResponseEntity<Result> getSpecificTimeEntry(@PathVariable String timeEntryId) {
+        return ResponseEntity.ok(new Result(
+                true,
+                OK,
+                "Time entry: '" + timeEntryId + "'.",
+                this.timeEntryService.getTimeEntryById(timeEntryId)
         ));
     }
 

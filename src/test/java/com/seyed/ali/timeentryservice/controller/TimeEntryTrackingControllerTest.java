@@ -60,7 +60,7 @@ class TimeEntryTrackingControllerTest {
     public void startTrackingTimeEntryTest() throws Exception {
         // given
         String timeEntryId = "some_time_entry_id";
-        when(this.timeEntryTrackingService.startTrackingTimeEntry(isA(Boolean.class), isA(BigDecimal.class)))
+        when(this.timeEntryTrackingService.startTrackingTimeEntry(isA(TimeBillingDTO.class)))
                 .thenReturn(timeEntryId);
         String json = this.objectMapper.writeValueAsString(new TimeBillingDTO(true, BigDecimal.ONE));
 
