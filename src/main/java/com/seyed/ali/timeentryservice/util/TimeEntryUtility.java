@@ -56,8 +56,12 @@ public class TimeEntryUtility {
 
         for (TimeSegment timeSegment : timeSegmentList) {
             String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeSegment.getStartTime());
-            String endTimeStr = this.timeParser.parseLocalDateTimeToString(timeSegment.getEndTime());
-            String durationStr = this.timeParser.parseDurationToString(timeSegment.getDuration());
+            String endTimeStr = timeSegment.getEndTime() != null
+                    ? this.timeParser.parseLocalDateTimeToString(timeSegment.getEndTime())
+                    : null;
+            String durationStr = timeSegment.getDuration() != null
+                    ? this.timeParser.parseDurationToString(timeSegment.getDuration())
+                    : null;
             TimeSegmentDTO segmentDTO = new TimeSegmentDTO(timeSegment.getTimeSegmentId(), startTimeStr, endTimeStr, durationStr, timeEntry.getUserId());
             timeSegmentDTOList.add(segmentDTO);
         }
