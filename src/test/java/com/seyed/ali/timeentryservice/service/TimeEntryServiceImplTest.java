@@ -9,9 +9,11 @@ import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
+import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
+import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,8 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
     private @Mock TimeEntryUtility timeEntryUtility;
+    private @Mock TimeEntryConverter timeEntryConverter;
+    private @Mock TimeEntryCacheManager timeEntryCacheManager;
 
     private String startTimeStr;
     private String endTimeStr;
@@ -83,10 +87,9 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
         // given
         List<TimeEntry> timeEntryList = List.of(this.timeEntry);
         when(this.timeEntryRepository.findAll()).thenReturn(timeEntryList);
-        when(this.timeEntryUtility.convertToTimeEntryResponseList(timeEntryList)).thenReturn(List.of(this.timeEntryResponse));
 
         // when
-        List<TimeEntryResponse> result = this.timeEntryService.getTimeEntries();
+        List<TimeEntry> result = this.timeEntryService.getTimeEntries();
         System.out.println(result);
 
         // then
@@ -95,9 +98,11 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .isNotNull()
                 .as("Must have 1 value")
                 .hasSize(1);
-        assertThat(result.getFirst().timeSegmentDTOList().getFirst().duration())
+        Duration actualDuration = result.getFirst().getTimeSegmentList().getFirst().getDuration();
+        String actualDurationStr = this.parseDurationToString(actualDuration);
+        assertThat(actualDurationStr)
                 .as("Must be equal to = PT2H")
-                .isEqualTo(parseDurationToString(timeEntry.getTimeSegmentList().getLast().getDuration()));
+                .isEqualTo(this.parseDurationToString(timeEntry.getTimeSegmentList().getLast().getDuration()));
     }
 
     @Test
@@ -105,17 +110,18 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     public void getUsersTimeEntry_UserIdValid_Success() {
         // given
         when(this.timeEntryRepository.findByUserId(isA(String.class))).thenReturn(Optional.ofNullable(this.timeEntry));
-        when(this.timeEntryUtility.convertToTimeEntryResponse(isA(TimeEntry.class))).thenReturn(this.timeEntryResponse);
 
         // when
-        TimeEntryResponse result = this.timeEntryService.getUsersTimeEntry("some_user_id");
+        TimeEntry result = this.timeEntryService.getUsersTimeEntry("some_user_id");
         System.out.println(result);
 
         // then
         assertThat(result)
                 .as("Must not be null")
                 .isNotNull();
-        assertThat(result.totalDuration())
+        Duration actualDuration = result.getTimeSegmentList().getFirst().getDuration();
+        String actualDurationStr = this.parseDurationToString(actualDuration);
+        assertThat(actualDurationStr)
                 .as("Must be equal to = PT2H")
                 .isEqualTo(parseDurationToString(this.timeSegment.getDuration()));
     }
@@ -203,21 +209,16 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
                 .when(this.timeEntryUtility)
                 .updateTimeEntry(isA(TimeEntry.class), isA(TimeEntryDTO.class), isA(TimeParser.class));
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(expectedUpdateTimeEntry);
-        when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class))).thenReturn(updatedStartTimeStr);
-        when(this.timeEntryUtility.createTimeEntryDTO(isA(TimeEntry.class), isA(TimeSegment.class), isA(String.class)))
-                .thenReturn(expectedUpdatedTimeEntryDTO);
+        when(this.timeEntryCacheManager.cacheTimeEntry(isA(String.class), isA(TimeEntry.class))).thenReturn(this.timeEntry);
 
         // When
-        TimeEntryDTO result = this.timeEntryService.updateTimeEntryManually(timeEntryId, timeEntryDTO);
+        TimeEntry result = this.timeEntryService.updateTimeEntryManually(timeEntryId, timeEntryDTO);
         System.out.println(result);
 
         // Then
         assertThat(result)
                 .as("Must not be null")
                 .isNotNull();
-        assertThat(result.duration())
-                .as("Must be equal to = PT2H")
-                .isEqualTo("02:00:00");
 
         verify(this.timeEntryRepository, times(1))
                 .save(isA(TimeEntry.class));

@@ -6,13 +6,13 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +29,13 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
     private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
+    private final TimeEntryCacheManager timeEntryCacheManager;
 
-    // TODO: Implement REDIS for caching the `start_time`
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional
-    @CachePut(
-            cacheNames = "time-entry-cache",
-            key = "#result"
-    )
     public String startTrackingTimeEntry(TimeBillingDTO timeBillingDTO) {
         boolean billable = false;
         BigDecimal hourlyRate = BigDecimal.ZERO;
@@ -50,11 +46,14 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         }
 
         TimeEntry timeEntry = this.timeEntryUtility.createNewTimeEntry(billable, hourlyRate, this.authenticationServiceClient);
-        this.timeEntryRepository.save(timeEntry);
-        return timeEntry.getTimeEntryId();
+        TimeEntry savedTimeEntry = this.timeEntryRepository.save(timeEntry);
+
+        // cache the saved `TimeEntry` to redis
+        String timeEntryId = timeEntry.getTimeEntryId();
+        this.timeEntryCacheManager.cacheTimeEntry(timeEntryId, savedTimeEntry);
+        return timeEntryId;
     }
 
-    // TODO: Implement REDIS for getting the cached `start_time`
     /**
      * {@inheritDoc}
      */
@@ -73,7 +72,10 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         }
 
         this.timeEntryUtility.stopTimeEntry(timeEntry, endTime);
-        this.timeEntryRepository.save(timeEntry);
+        TimeEntry savedTimeEntry = this.timeEntryRepository.save(timeEntry);
+
+        // cache the saved `TimeEntry` to redis
+        this.timeEntryCacheManager.cacheTimeEntry(timeEntry.getTimeEntryId(), savedTimeEntry);
 
         Duration totalDuration = this.timeEntryUtility.getTotalDuration(timeEntry);
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
@@ -83,7 +85,6 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr);
     }
 
-    // TODO: Implement REDIS for getting the cached `start_time`
     /**
      * {@inheritDoc}
      */
@@ -94,7 +95,11 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         String currentLoggedInUsersId = this.authenticationServiceClient.getCurrentLoggedInUsersId();
         TimeEntry timeEntry = this.timeEntryRepository.findByUserIdAndTimeEntryId(currentLoggedInUsersId, timeEntryId);
         this.timeEntryUtility.continueTimeEntry(timeEntry, continueTime);
-        this.timeEntryRepository.save(timeEntry);
+        TimeEntry savedTimeEntry = this.timeEntryRepository.save(timeEntry);
+
+        // cache the saved `TimeEntry` to redis
+        this.timeEntryCacheManager.cacheTimeEntry(timeEntry.getTimeEntryId(), savedTimeEntry);
+
         String hourlyRate = timeEntry.getHourlyRate() != null ? timeEntry.getHourlyRate().toString() : null;
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
         return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null);

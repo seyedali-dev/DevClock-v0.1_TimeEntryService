@@ -6,6 +6,7 @@ import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.TimeParserUtilForTests;
@@ -36,6 +37,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
     private @Mock AuthenticationServiceClient authenticationServiceClient;
     private @Mock TimeParser timeParser;
     private @Mock TimeEntryUtility timeEntryUtility;
+    private @Mock TimeEntryCacheManager timeEntryCacheManager;
 
     private String startTimeStr;
     private String endTimeStr;
@@ -83,6 +85,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         when(this.timeEntryUtility.createNewTimeEntry(isA(Boolean.class), isA(BigDecimal.class), isA(AuthenticationServiceClient.class)))
                 .thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
+        when(this.timeEntryCacheManager.cacheTimeEntry(isA(String.class), isA(TimeEntry.class))).thenReturn(this.timeEntry);
 
         // Act
         TimeBillingDTO timeBillingDTO = new TimeBillingDTO(false, BigDecimal.ZERO);
@@ -132,6 +135,8 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
                     return dateTime.format(formatter);
                 });
         when(this.timeParser.parseDurationToString(any(Duration.class))).thenReturn(duration.toString());
+        when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(this.timeEntry);
+        when(this.timeEntryCacheManager.cacheTimeEntry(isA(String.class), isA(TimeEntry.class))).thenReturn(this.timeEntry);
 
         // Act
         TimeEntryDTO result = this.timeEntryTrackingService.stopTrackingTimeEntry(timeEntry.getTimeEntryId());
@@ -171,6 +176,7 @@ class TimeEntryTrackingServiceImplTest extends TimeParserUtilForTests {
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(timeEntry);
         when(this.timeParser.parseLocalDateTimeToString(isA(LocalDateTime.class)))
                 .thenReturn(formattedContinueTimeStr);
+        when(this.timeEntryCacheManager.cacheTimeEntry(isA(String.class), isA(TimeEntry.class))).thenReturn(this.timeEntry);
 
         // Act
         TimeEntryDTO result = this.timeEntryTrackingService.continueTrackingTimeEntry(timeEntryId);

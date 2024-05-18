@@ -6,12 +6,14 @@ import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
+import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
+import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,37 +28,42 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     private final TimeEntryRepository timeEntryRepository;
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
+    private final TimeEntryConverter timeEntryConverter;
+    private final TimeEntryCacheManager timeEntryCacheManager;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<TimeEntryResponse> getTimeEntries() {
-        List<TimeEntry> timeEntryList = this.timeEntryRepository.findAll();
-        return this.timeEntryUtility.convertToTimeEntryResponseList(timeEntryList);
+    public List<TimeEntry> getTimeEntries() {
+     return this.timeEntryRepository.findAll();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public TimeEntryResponse getUsersTimeEntry(String userId) {
-        TimeEntry timeEntry = this.timeEntryRepository.findByUserId(userId)
+    @Cacheable(
+            cacheNames = TimeEntryCacheManager.TIME_ENTRY_CACHE,
+            key = "#userId",
+            unless = "#result == null"
+    )
+    public TimeEntry getUsersTimeEntry(String userId) {
+        return this.timeEntryRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
-        return this.timeEntryUtility.convertToTimeEntryResponse(timeEntry);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-//    @Cacheable(
-//            cacheNames = "time-entry-cache",
-//            key = "#timeEntryId"
-//    )
-    public TimeEntryResponse getTimeEntryById(String timeEntryId) {
+    @Cacheable(
+            cacheNames = TimeEntryCacheManager.TIME_ENTRY_CACHE,
+            key = "#timeEntryId",
+            unless = "#result == null"
+    )
+    public TimeEntry getTimeEntryById(String timeEntryId) {
         return this.timeEntryRepository.findById(timeEntryId)
-                .map(this.timeEntryUtility::convertToTimeEntryResponse)
                 .orElseThrow(()-> new ResourceNotFoundException("Time entry with ID: '" + timeEntryId +"' was not found."));
     }
 
@@ -67,7 +74,11 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     @Transactional
     public String addTimeEntryManually(TimeEntryDTO timeEntryDTO) {
         TimeEntry timeEntry = this.timeEntryUtility.createTimeEntry(timeEntryDTO);
-        this.timeEntryRepository.save(timeEntry);
+        TimeEntry savedTimeEntry = this.timeEntryRepository.save(timeEntry);
+
+        // cache the saved `TimeEntry` to redis
+        this.timeEntryCacheManager.cacheTimeEntry(savedTimeEntry.getTimeEntryId(), savedTimeEntry);
+
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
         return this.timeParser.parseTimeToString(lastTimeSegment.getStartTime(), lastTimeSegment.getEndTime(), lastTimeSegment.getDuration());
     }
@@ -77,14 +88,15 @@ public class TimeEntryServiceImpl implements TimeEntryService {
      */
     @Override
     @Transactional
-    public TimeEntryDTO updateTimeEntryManually(String timeEntryId, TimeEntryDTO timeEntryDTO) {
+    public TimeEntry updateTimeEntryManually(String timeEntryId, TimeEntryDTO timeEntryDTO) {
         TimeEntry timeEntry = this.timeEntryRepository.findById(timeEntryId)
-                .orElseThrow(() -> new IllegalArgumentException("The provided timeEntryId does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("The provided timeEntryId does not exist"));
         this.timeEntryUtility.updateTimeEntry(timeEntry, timeEntryDTO, this.timeParser);
-        this.timeEntryRepository.save(timeEntry);
-        TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
-        String startTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
-        return this.timeEntryUtility.createTimeEntryDTO(timeEntry, lastTimeSegment, startTimeString);
+        TimeEntry savedTimeEntry = this.timeEntryRepository.save(timeEntry);
+
+        // cache the saved `TimeEntry` to redis
+        this.timeEntryCacheManager.cacheTimeEntry(timeEntryId, savedTimeEntry);
+        return savedTimeEntry;
     }
 
     /**
@@ -92,6 +104,10 @@ public class TimeEntryServiceImpl implements TimeEntryService {
      */
     @Override
     @Transactional
+    @CacheEvict(
+            cacheNames = TimeEntryCacheManager.TIME_ENTRY_CACHE,
+            key = "#timeEntryId"
+    )
     public void deleteTimeEntry(String timeEntryId) {
         this.timeEntryRepository.deleteById(timeEntryId);
     }

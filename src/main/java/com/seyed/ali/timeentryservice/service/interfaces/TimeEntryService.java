@@ -1,8 +1,8 @@
 package com.seyed.ali.timeentryservice.service.interfaces;
 
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
+import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface TimeEntryService {
      *
      * @return A list of TimeEntryResponse objects representing time entries.
      */
-    List<TimeEntryResponse> getTimeEntries();
+    List<TimeEntry> getTimeEntries();
 
     /**
      * Retrieves a time entry for a specific user.
@@ -25,7 +25,7 @@ public interface TimeEntryService {
      * @return A TimeEntryResponse object representing the user's time entry.
      * @throws ResourceNotFoundException if the user is not found.
      */
-    TimeEntryResponse getUsersTimeEntry(String userId);
+    TimeEntry getUsersTimeEntry(String userId);
 
     /**
      * Retrieves a specific time entry.
@@ -34,7 +34,7 @@ public interface TimeEntryService {
      * @return A TimeEntryResponse object representing the found time entry.
      * @throws ResourceNotFoundException if the time entry is not found.
      */
-    TimeEntryResponse getTimeEntryById(String timeEntryId);
+    TimeEntry getTimeEntryById(String timeEntryId);
 
     /**
      * Adds a new time entry manually.
@@ -52,7 +52,7 @@ public interface TimeEntryService {
      * @return The updated TimeEntryDTO object.
      * @throws IllegalArgumentException if the provided ID does not exist.
      */
-    TimeEntryDTO updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
+    TimeEntry updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
 
     /**
      * Deletes a time entry.
