@@ -1,9 +1,11 @@
 package com.seyed.ali.timeentryservice.service.cache;
 
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class TimeEntryCacheManager {
 
@@ -15,6 +17,7 @@ public class TimeEntryCacheManager {
             key = "#timeEntryId"
     )
     public TimeEntry cacheTimeEntry(String timeEntryId, TimeEntry timeEntry) {
+        log.info("Caching timeEntry. TimeEntryId: {} - UserId: {}", timeEntryId, timeEntry.getUserId());
         return timeEntry;
     }
 

@@ -4,13 +4,11 @@ import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
-import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,7 +26,6 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     private final TimeEntryRepository timeEntryRepository;
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
-    private final TimeEntryConverter timeEntryConverter;
     private final TimeEntryCacheManager timeEntryCacheManager;
 
     /**
@@ -56,6 +53,7 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     @Cacheable(
             cacheNames = TimeEntryCacheManager.TIME_ENTRY_CACHE,
@@ -63,8 +61,11 @@ public class TimeEntryServiceImpl implements TimeEntryService {
             unless = "#result == null"
     )
     public TimeEntry getTimeEntryById(String timeEntryId) {
-        return this.timeEntryRepository.findById(timeEntryId)
+        log.info("Db call.");
+        TimeEntry timeEntry = this.timeEntryRepository.findById(timeEntryId)
                 .orElseThrow(()-> new ResourceNotFoundException("Time entry with ID: '" + timeEntryId +"' was not found."));
+        timeEntry.getTimeSegmentList().size(); // This will initialize the timeSegmentList: otherwise we'll get hibernate's LazyLoadingException.
+        return timeEntry;
     }
 
     /**
