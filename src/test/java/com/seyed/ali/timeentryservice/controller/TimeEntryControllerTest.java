@@ -65,7 +65,7 @@ class TimeEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1");
         this.timeEntryDTOS.add(timeEntryDTO);
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
@@ -76,6 +76,7 @@ class TimeEntryControllerTest {
 
         this.timeEntry = new TimeEntry();
         this.timeEntry.setTimeEntryId("1");
+        this.timeEntry.setProjectId("1");
         this.timeEntries.add(this.timeEntry);
     }
 
@@ -175,7 +176,7 @@ class TimeEntryControllerTest {
     @Test
     public void addTimeEntryManuallyTest() throws Exception {
         // given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00", "1");
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
         String responseMessage = "startTime(" + timeEntryDTO.startTime() + ") " +
                 " | endTime (" + timeEntryDTO.endTime() + ")" +

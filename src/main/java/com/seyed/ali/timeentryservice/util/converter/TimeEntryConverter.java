@@ -81,7 +81,7 @@ public class TimeEntryConverter {
                 : null;
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
         String durationStr = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeStr, timeEntry.isBillable(), hourlyRate, durationStr);
+        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeStr, timeEntry.isBillable(), hourlyRate, durationStr, timeEntry.getProjectId());
     }
 
 }

@@ -82,7 +82,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
         String durationStr = this.timeParser.parseDurationToString(totalDuration);
 
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr);
+        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr, timeEntry.getProjectId());
     }
 
     /**
@@ -102,7 +102,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
 
         String hourlyRate = timeEntry.getHourlyRate() != null ? timeEntry.getHourlyRate().toString() : null;
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
-        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null);
+        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null, timeEntry.getProjectId());
     }
 
 }

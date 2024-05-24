@@ -33,5 +33,6 @@ public class TimeEntry implements Serializable {
     private List<TimeSegment> timeSegmentList = new ArrayList<>();
 
     private String userId;
+    private String projectId;
 
 }

@@ -1,12 +1,15 @@
 package com.seyed.ali.timeentryservice.util;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
+import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
+import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -20,6 +23,7 @@ public class TimeEntryUtility {
 
     private final AuthenticationServiceClient authenticationServiceClient;
     private final TimeParser timeParser;
+    private final ProjectServiceClient projectServiceClient;
 
     /**
      * Creates a new TimeEntry object based on the provided TimeEntryDTO.
@@ -31,7 +35,10 @@ public class TimeEntryUtility {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(UUID.randomUUID().toString());
         timeEntry.setBillable(timeEntryDTO.billable());
-        timeEntry.setUserId(authenticationServiceClient.getCurrentLoggedInUsersId());
+        timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
+
+        if (this.projectServiceClient.isProjectValid(timeEntryDTO.projectId()))
+            timeEntry.setProjectId(timeEntryDTO.projectId());
 
         if (timeEntryDTO.hourlyRate() != null) {
             timeEntry.setHourlyRate(new BigDecimal(timeEntryDTO.hourlyRate()));
