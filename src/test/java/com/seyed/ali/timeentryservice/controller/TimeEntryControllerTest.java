@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seyed.ali.timeentryservice.config.EurekaClientTestConfiguration;
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
-import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
+import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
@@ -28,19 +28,17 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal", "MismatchedQueryAndUpdateOfCollection"})
 @WebMvcTest(TimeEntryController.class) /* since this is not in integration test, rather controller unit test */
 @EnableConfigurationProperties /* to use application.yml-test file */
 @ActiveProfiles("test")
@@ -71,7 +69,7 @@ class TimeEntryControllerTest {
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00");
+        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", this.timeEntry.getProjectId());
         this.timeEntriesResponse.add(timeEntryResponse);
 
         this.timeEntry = new TimeEntry();
@@ -207,7 +205,7 @@ class TimeEntryControllerTest {
     }
 
     @Test
-    public void updateTimeEntryTest() throws Exception {
+    public void updateTimeEntryTest() {
         // TODO: Update the test
         // Given
 //        String id = "1";

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
-import com.seyed.ali.timeentryservice.model.dto.response.Result;
+import com.seyed.ali.timeentryservice.model.payload.response.Result;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -45,9 +45,9 @@ public class TimeEntryServiceHandlerAdvice {
 
     @ExceptionHandler({OperationNotSupportedException.class})
     public ResponseEntity<Result> handleOperationNotSupportedException(OperationNotSupportedException e) {
-        return ResponseEntity.status(NOT_FOUND).body(new Result(
+        return ResponseEntity.status(NOT_ACCEPTABLE).body(new Result(
                 false,
-                NOT_FOUND,
+                NOT_ACCEPTABLE,
                 "This operation is not supported.",
                 "ServerMessage - " + e.getMessage()
         ));

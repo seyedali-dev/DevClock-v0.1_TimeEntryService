@@ -2,7 +2,7 @@ package com.seyed.ali.timeentryservice.service.interfaces;
 
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 
 import java.util.List;
 

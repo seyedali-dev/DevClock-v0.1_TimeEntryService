@@ -1,7 +1,7 @@
 package com.seyed.ali.timeentryservice.service.interfaces;
 
-import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeBillingDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 
 /**
  * Interface for Time Entry tracking service operations.

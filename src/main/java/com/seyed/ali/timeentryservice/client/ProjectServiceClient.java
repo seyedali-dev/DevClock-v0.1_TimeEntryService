@@ -2,7 +2,7 @@ package com.seyed.ali.timeentryservice.client;
 
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
-import com.seyed.ali.timeentryservice.model.dto.response.Result;
+import com.seyed.ali.timeentryservice.model.payload.response.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

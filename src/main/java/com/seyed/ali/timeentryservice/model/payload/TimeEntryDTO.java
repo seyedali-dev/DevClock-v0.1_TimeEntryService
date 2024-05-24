@@ -1,4 +1,4 @@
-package com.seyed.ali.timeentryservice.model.dto;
+package com.seyed.ali.timeentryservice.model.payload;
 
 import com.seyed.ali.timeentryservice.annotation.OptionalField;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;

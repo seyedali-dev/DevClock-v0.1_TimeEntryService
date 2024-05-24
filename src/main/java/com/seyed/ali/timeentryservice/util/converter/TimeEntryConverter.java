@@ -2,9 +2,9 @@ package com.seyed.ali.timeentryservice.util.converter;
 
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
-import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
+import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +64,7 @@ public class TimeEntryConverter {
         }
 
         String totalDurationStr = this.timeParser.parseDurationToString(totalDuration);
-        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr);
+        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr, timeEntry.getProjectId());
     }
 
     /**
