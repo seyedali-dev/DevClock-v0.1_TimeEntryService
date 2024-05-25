@@ -3,8 +3,8 @@ package com.seyed.ali.timeentryservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seyed.ali.timeentryservice.config.EurekaClientTestConfiguration;
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
-import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeBillingDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.service.TimeEntryTrackingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class TimeEntryTrackingControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1");
 
         this.timeEntries.add(timeEntryDTO);
     }

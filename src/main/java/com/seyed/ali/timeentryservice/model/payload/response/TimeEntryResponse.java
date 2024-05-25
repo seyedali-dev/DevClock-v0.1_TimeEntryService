@@ -1,6 +1,6 @@
-package com.seyed.ali.timeentryservice.model.dto.response;
+package com.seyed.ali.timeentryservice.model.payload.response;
 
-import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -20,6 +20,10 @@ public record TimeEntryResponse(
         String hourlyRate,
 
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Total time recorded", example = "00:00:18")
-        String totalDuration
+        String totalDuration,
+
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for associated project with the time entry", example = "12345")
+        String projectId
+
 ) {
 }

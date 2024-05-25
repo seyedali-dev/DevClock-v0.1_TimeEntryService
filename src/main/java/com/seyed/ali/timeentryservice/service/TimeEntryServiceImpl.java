@@ -3,7 +3,7 @@ package com.seyed.ali.timeentryservice.service;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;

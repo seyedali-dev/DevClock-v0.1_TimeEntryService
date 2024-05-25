@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@SuppressWarnings("SameReturnValue")
 @RestController
 @SecurityRequirement(name = "Keycloak")
 public class TestController {

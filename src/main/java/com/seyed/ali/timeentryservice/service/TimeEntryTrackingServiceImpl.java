@@ -3,8 +3,8 @@ package com.seyed.ali.timeentryservice.service;
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
-import com.seyed.ali.timeentryservice.model.dto.TimeBillingDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeBillingDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryTrackingService;
@@ -12,7 +12,6 @@ import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,7 +81,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
         String durationStr = this.timeParser.parseDurationToString(totalDuration);
 
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr);
+        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr, timeEntry.getProjectId());
     }
 
     /**
@@ -102,7 +101,7 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
 
         String hourlyRate = timeEntry.getHourlyRate() != null ? timeEntry.getHourlyRate().toString() : null;
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
-        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null);
+        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null, timeEntry.getProjectId());
     }
 
 }

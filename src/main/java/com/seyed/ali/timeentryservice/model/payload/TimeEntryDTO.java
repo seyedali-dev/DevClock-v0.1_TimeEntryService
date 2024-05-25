@@ -1,4 +1,4 @@
-package com.seyed.ali.timeentryservice.model.dto;
+package com.seyed.ali.timeentryservice.model.payload;
 
 import com.seyed.ali.timeentryservice.annotation.OptionalField;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
@@ -10,6 +10,7 @@ import jakarta.validation.constraints.*;
  */
 @Schema(description = "Time Entry Data Transfer Object")
 public record TimeEntryDTO(
+
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")
         @Size(max = 36, message = "timeEntryId must be maximum 36 characters")
         String timeEntryId,
@@ -34,6 +35,12 @@ public record TimeEntryDTO(
 
         @Schema(requiredMode = Schema.RequiredMode.AUTO, description = "Duration of the time entry in the format HH:mm:ss", example = "02:00:00")
         @Pattern(regexp = "^\\d{2}:\\d{2}:\\d{2}$", message = "duration must be in the format HH:mm:ss")
-        String duration
+        String duration,
+
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Unique identifier for the associated time entry", example = "12345")
+        @NotBlank(message = "projectId is mandatory and cannot be blank")
+        @NotNull(message = "projectId is mandatory and cannot be null")
+        String projectId
+
 ) {
 }

@@ -4,9 +4,9 @@ import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
-import com.seyed.ali.timeentryservice.model.dto.TimeEntryDTO;
-import com.seyed.ali.timeentryservice.model.dto.TimeSegmentDTO;
-import com.seyed.ali.timeentryservice.model.dto.response.TimeEntryResponse;
+import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
+import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
+import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.repository.TimeSegmentRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
@@ -32,7 +32,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unused")
@@ -56,7 +55,6 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private Duration duration;
     private TimeEntry timeEntry;
     private TimeSegment timeSegment;
-    private TimeEntryResponse timeEntryResponse;
 
     @BeforeEach
     void setUp() {
@@ -79,7 +77,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", this.startTimeStr, this.endTimeStr, this.durationStr, "userId");
 
-        this.timeEntryResponse = new TimeEntryResponse("1", List.of(timeSegmentDTO), false, "10.0", this.durationStr);
+        TimeEntryResponse timeEntryResponse = new TimeEntryResponse("1", List.of(timeSegmentDTO), false, "10.0", this.durationStr, "1");
     }
 
     @Test
@@ -148,7 +146,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     @Test
     @DisplayName("addTimeEntryManually should success when duration is present")
     public void addTimeEntryManually_WithDuration_Success() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr, "1");
 
         when(this.timeEntryUtility.createTimeEntry(timeEntryDTO)).thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(this.timeEntry);
@@ -171,7 +169,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     @DisplayName("addTimeEntryManually should success when duration is not present")
     public void addTimeEntryManually_WithoutDuration_Success() {
         // Given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), null);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), null, "1");
 
         when(this.timeEntryUtility.createTimeEntry(timeEntryDTO)).thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(this.timeEntry);
@@ -195,11 +193,11 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     public void updateTimeEntryTest_ValidTimeEntryId_Success() {
         // Given
         String timeEntryId = "Some_timeEntry_id";
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr);
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr, "1");
 
         String updatedStartTimeStr = parseLocalDateTimeToString(this.startTime.plusHours(1));
         String updatedEndTimeStr = parseLocalDateTimeToString(this.endTime.plusHours(1));
-        TimeEntryDTO expectedUpdatedTimeEntryDTO = new TimeEntryDTO(null, updatedStartTimeStr, updatedEndTimeStr, true, BigDecimal.TWO.toString(), this.durationStr);
+        TimeEntryDTO expectedUpdatedTimeEntryDTO = new TimeEntryDTO(null, updatedStartTimeStr, updatedEndTimeStr, true, BigDecimal.TWO.toString(), this.durationStr, "1");
         TimeEntry expectedUpdateTimeEntry = new TimeEntry();
         expectedUpdateTimeEntry.setBillable(expectedUpdatedTimeEntryDTO.billable());
         expectedUpdateTimeEntry.setHourlyRate(new BigDecimal(expectedUpdatedTimeEntryDTO.hourlyRate()));
