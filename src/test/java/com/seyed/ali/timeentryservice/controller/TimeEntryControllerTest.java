@@ -69,7 +69,7 @@ class TimeEntryControllerTest {
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", this.timeEntry.getProjectId());
+        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", "1");
         this.timeEntriesResponse.add(timeEntryResponse);
 
         this.timeEntry = new TimeEntry();

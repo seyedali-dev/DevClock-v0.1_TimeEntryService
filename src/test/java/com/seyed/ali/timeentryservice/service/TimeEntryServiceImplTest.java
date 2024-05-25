@@ -55,7 +55,6 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private Duration duration;
     private TimeEntry timeEntry;
     private TimeSegment timeSegment;
-    private TimeEntryResponse timeEntryResponse;
 
     @BeforeEach
     void setUp() {
@@ -78,7 +77,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", this.startTimeStr, this.endTimeStr, this.durationStr, "userId");
 
-        this.timeEntryResponse = new TimeEntryResponse("1", List.of(timeSegmentDTO), false, "10.0", this.durationStr);
+        TimeEntryResponse timeEntryResponse = new TimeEntryResponse("1", List.of(timeSegmentDTO), false, "10.0", this.durationStr, "1");
     }
 
     @Test
