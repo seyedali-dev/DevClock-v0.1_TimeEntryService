@@ -1,7 +1,11 @@
 package com.seyed.ali.timeentryservice.util.converter;
 
+import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
+import com.seyed.ali.timeentryservice.client.TaskServiceClient;
+import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.payload.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
@@ -10,9 +14,12 @@ import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 // TODO: Write unit tests!
 @Service
@@ -21,6 +28,8 @@ public class TimeEntryConverter {
 
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
+    private final ProjectServiceClient projectServiceClient;
+    private final TaskServiceClient taskServiceClient;
 
     /**
      * Converts a list of TimeEntry objects to a list of TimeEntryResponse objects.
@@ -64,7 +73,7 @@ public class TimeEntryConverter {
         }
 
         String totalDurationStr = this.timeParser.parseDurationToString(totalDuration);
-        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr, timeEntry.getProjectId());
+        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr, timeEntry.getProjectId(), timeEntry.getTaskId());
     }
 
     /**
@@ -81,7 +90,48 @@ public class TimeEntryConverter {
                 : null;
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
         String durationStr = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeStr, timeEntry.isBillable(), hourlyRate, durationStr, timeEntry.getProjectId());
+        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeStr, timeEntry.isBillable(), hourlyRate, durationStr, timeEntry.getProjectId(), timeEntry.getTaskId());
+    }
+
+    /**
+     * Creates a TimeBillingDTO object based on the request provided.
+     *
+     * @param timeBillingDTO the TimeBillingDTO object which user provides where user is free to provide data or to not provide anything.
+     * @return The created TimeBillingDTO object.
+     */
+    public TimeBillingDTO createTimeBillingDTOFromRequest(TimeBillingDTO timeBillingDTO) {
+        // add default values
+        boolean billable = false;
+        BigDecimal hourlyRate = BigDecimal.ZERO;
+        String projectId = null;
+        String taskId = null;
+
+        // if user provided data
+        if (timeBillingDTO != null) {
+            billable = timeBillingDTO.isBillable();
+            hourlyRate = timeBillingDTO.getHourlyRate();
+
+            // if user also provided task and project ID's
+            // validate the provided task and project ID's
+            projectId = this.validateId(timeBillingDTO.getProjectId(), this.projectServiceClient::isProjectValid);
+            taskId = this.validateId(timeBillingDTO.getTaskId(), this.taskServiceClient::isTaskValid);
+        }
+
+        return new TimeBillingDTO(billable, hourlyRate, projectId, taskId);
+    }
+
+    /**
+     * Validates the provided ID using the specified validator.
+     *
+     * @param id        The ID to be validated. It can be null.
+     * @param validator A Consumer functional interface that takes the ID as input and validates it.
+     *                  If the ID is invalid, it is expected to throw an exception.
+     * @return The same ID that was passed in, allowing this method to be used in a fluent API style.
+     * @throws ResourceNotFoundException If the provided ID was not found.
+     */
+    private String validateId(String id, Consumer<String> validator) {
+        Optional.ofNullable(id).ifPresent(validator);
+        return id;
     }
 
 }

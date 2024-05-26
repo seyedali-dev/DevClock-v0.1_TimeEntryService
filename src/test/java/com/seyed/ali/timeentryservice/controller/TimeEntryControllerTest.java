@@ -63,13 +63,13 @@ class TimeEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
         this.timeEntryDTOS.add(timeEntryDTO);
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", "1");
+        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
         this.timeEntriesResponse.add(timeEntryResponse);
 
         this.timeEntry = new TimeEntry();
@@ -174,11 +174,11 @@ class TimeEntryControllerTest {
     @Test
     public void addTimeEntryManuallyTest() throws Exception {
         // given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00", "1");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00", "1", "1");
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
-        String responseMessage = "startTime(" + timeEntryDTO.startTime() + ") " +
-                " | endTime (" + timeEntryDTO.endTime() + ")" +
-                " | duration(" + timeEntryDTO.duration() + ")";
+        String responseMessage = "startTime(" + timeEntryDTO.getStartTime() + ") " +
+                " | endTime (" + timeEntryDTO.getEndTime() + ")" +
+                " | duration(" + timeEntryDTO.getDuration() + ")";
 
         when(this.timeEntryService.addTimeEntryManually(timeEntryDTO))
                 .thenReturn(responseMessage);

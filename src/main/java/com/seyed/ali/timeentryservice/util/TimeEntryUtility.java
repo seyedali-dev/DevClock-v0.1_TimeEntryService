@@ -2,9 +2,11 @@ package com.seyed.ali.timeentryservice.util;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
 import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
+import com.seyed.ali.timeentryservice.client.TaskServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.payload.TimeBillingDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,8 +22,9 @@ import java.util.UUID;
 public class TimeEntryUtility {
 
     private final AuthenticationServiceClient authenticationServiceClient;
-    private final TimeParser timeParser;
     private final ProjectServiceClient projectServiceClient;
+    private final TaskServiceClient taskServiceClient;
+    private final TimeParser timeParser;
 
     /**
      * Creates a new TimeEntry object based on the provided TimeEntryDTO.
@@ -32,14 +35,17 @@ public class TimeEntryUtility {
     public TimeEntry createTimeEntry(TimeEntryDTO timeEntryDTO) {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(UUID.randomUUID().toString());
-        timeEntry.setBillable(timeEntryDTO.billable());
+        timeEntry.setBillable(timeEntryDTO.isBillable());
         timeEntry.setUserId(this.authenticationServiceClient.getCurrentLoggedInUsersId());
 
-        if (this.projectServiceClient.isProjectValid(timeEntryDTO.projectId()))
-            timeEntry.setProjectId(timeEntryDTO.projectId());
+        if (this.projectServiceClient.isProjectValid(timeEntryDTO.getProjectId()))
+            timeEntry.setProjectId(timeEntryDTO.getProjectId());
 
-        if (timeEntryDTO.hourlyRate() != null) {
-            timeEntry.setHourlyRate(new BigDecimal(timeEntryDTO.hourlyRate()));
+        if (this.taskServiceClient.isTaskValid(timeEntryDTO.getTaskId()))
+            timeEntry.setTaskId(timeEntryDTO.getTaskId());
+
+        if (timeEntryDTO.getHourlyRate() != null) {
+            timeEntry.setHourlyRate(new BigDecimal(timeEntryDTO.getHourlyRate()));
         }
 
         TimeSegment timeSegment = this.createTimeSegment(timeEntryDTO, timeEntry);
@@ -51,16 +57,17 @@ public class TimeEntryUtility {
     /**
      * Creates a new TimeEntry object for time tracking.
      *
-     * @param billable                    A boolean indicating whether the time entry is billable or not.
-     * @param hourlyRate                  The hourly rate for the time entry (if billable).
+     * @param timeBillingDTO The TimeBillingDTO object containing relevant data.
      * @param authenticationServiceClient The AuthenticationServiceClient for retrieving the current logged-in user's ID.
      * @return The created TimeEntry object.
      */
-    public TimeEntry createNewTimeEntry(boolean billable, BigDecimal hourlyRate, AuthenticationServiceClient authenticationServiceClient) {
+    public TimeEntry createNewTimeEntry(TimeBillingDTO timeBillingDTO, AuthenticationServiceClient authenticationServiceClient) {
         TimeEntry timeEntry = new TimeEntry();
         timeEntry.setTimeEntryId(UUID.randomUUID().toString());
-        timeEntry.setBillable(billable);
-        timeEntry.setHourlyRate(hourlyRate);
+        timeEntry.setBillable(timeBillingDTO.isBillable());
+        timeEntry.setHourlyRate(timeBillingDTO.getHourlyRate());
+        timeEntry.setProjectId(timeBillingDTO.getProjectId());
+        timeEntry.setTaskId(timeBillingDTO.getTaskId());
         timeEntry.setUserId(authenticationServiceClient.getCurrentLoggedInUsersId());
 
         TimeSegment timeSegment = TimeSegment.builder()
@@ -85,16 +92,16 @@ public class TimeEntryUtility {
     public void updateTimeEntry(TimeEntry timeEntry, TimeEntryDTO timeEntryDTO, TimeParser timeParser) {
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
 
-        LocalDateTime startTime = timeEntryDTO.startTime() != null
-                ? timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime())
+        LocalDateTime startTime = timeEntryDTO.getStartTime() != null
+                ? timeParser.parseStringToLocalDateTime(timeEntryDTO.getStartTime())
                 : lastTimeSegment.getStartTime();
 
-        LocalDateTime endTime = timeEntryDTO.endTime() != null
-                ? timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime())
+        LocalDateTime endTime = timeEntryDTO.getEndTime() != null
+                ? timeParser.parseStringToLocalDateTime(timeEntryDTO.getEndTime())
                 : lastTimeSegment.getEndTime();
 
-        Duration duration = timeEntryDTO.duration() != null
-                ? timeParser.parseStringToDuration(timeEntryDTO.duration())
+        Duration duration = timeEntryDTO.getDuration() != null
+                ? timeParser.parseStringToDuration(timeEntryDTO.getDuration())
                 : lastTimeSegment.getDuration();
 
         lastTimeSegment.setStartTime(startTime);
@@ -141,12 +148,12 @@ public class TimeEntryUtility {
      * @return The created TimeSegment object.
      */
     public TimeSegment createTimeSegment(TimeEntryDTO timeEntryDTO, TimeEntry timeEntry) {
-        LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.startTime());
-        LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.endTime());
+        LocalDateTime startTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.getStartTime());
+        LocalDateTime endTime = this.timeParser.parseStringToLocalDateTime(timeEntryDTO.getEndTime());
         Duration calculatedDuration = Duration.between(startTime, endTime);
 
         // if the user entered `duration` field
-        Optional<Duration> durationOpt = Optional.ofNullable(timeEntryDTO.duration())
+        Optional<Duration> durationOpt = Optional.ofNullable(timeEntryDTO.getDuration())
                 .map(this.timeParser::parseStringToDuration);
 
         durationOpt.ifPresent(duration -> {
