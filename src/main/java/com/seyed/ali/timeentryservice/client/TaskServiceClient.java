@@ -1,15 +1,12 @@
 package com.seyed.ali.timeentryservice.client;
 
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
-import com.seyed.ali.timeentryservice.model.payload.TaskDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
 
 /**
  * This is the service client class for the task service responsible for making REST calls to {@code Task-Service}.
@@ -21,23 +18,23 @@ import java.util.List;
 @Component
 public class TaskServiceClient extends ServiceClient {
 
-    private final String taskServiceBaseURL = "http://localhost:8084/api/v1/task"; // TODO: remember to change the host and port when dockerizing the application
+    private final String taskServiceBaseURL = "http://localhost:8084/api/v1/task/client"; // TODO: remember to change the host and port when dockerizing the application
 
     public TaskServiceClient(KeycloakSecurityUtil keycloakSecurityUtil, WebClient.Builder webClientBuilder) {
         super(keycloakSecurityUtil, webClientBuilder);
     }
 
     /**
-     * Retrieves all tasks for a specific project.
+     * Checks if a task is valid.
      *
-     * @param projectId the ID of the project
-     * @return a list of tasks for the project
+     * @param taskId the ID of the task
+     * @return true if the task is valid, false otherwise
      */
-    public List<TaskDTO> findAllTasksForProject(String projectId) {
-        String url = this.taskServiceBaseURL + "/" + projectId;
-        Result listResult = this.sendRequest(url, HttpMethod.GET, new ParameterizedTypeReference<>() {
+    public boolean isTaskValid(String taskId) {
+        String url = this.taskServiceBaseURL + "/" + taskId;
+        Result booleanResult = this.sendRequest(url, HttpMethod.GET, new ParameterizedTypeReference<>() {
         });
-        return (List<TaskDTO>) listResult.getData();
+        return (boolean) booleanResult.getData();
     }
 
 }

@@ -34,5 +34,6 @@ public class TimeEntry implements Serializable {
 
     private String userId;
     private String projectId;
+    private String taskId;
 
 }

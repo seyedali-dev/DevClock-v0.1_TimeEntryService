@@ -51,7 +51,7 @@ class TimeEntryTrackingControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1");
+        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
 
         this.timeEntries.add(timeEntryDTO);
     }
@@ -62,7 +62,7 @@ class TimeEntryTrackingControllerTest {
         String timeEntryId = "some_time_entry_id";
         when(this.timeEntryTrackingService.startTrackingTimeEntry(isA(TimeBillingDTO.class)))
                 .thenReturn(timeEntryId);
-        String json = this.objectMapper.writeValueAsString(new TimeBillingDTO(true, BigDecimal.ONE));
+        String json = this.objectMapper.writeValueAsString(new TimeBillingDTO(true, BigDecimal.ONE, "1", "1"));
 
         // when
         ResultActions response = this.mockMvc.perform(
@@ -87,7 +87,7 @@ class TimeEntryTrackingControllerTest {
     public void stopTrackingTimeEntryTest() throws Exception {
         // given
         TimeEntryDTO timeEntryDTO = this.timeEntries.getFirst();
-        String timeEntryId = timeEntryDTO.timeEntryId();
+        String timeEntryId = timeEntryDTO.getTimeEntryId();
         when(this.timeEntryTrackingService.stopTrackingTimeEntry(timeEntryId))
                 .thenReturn(timeEntryDTO);
 

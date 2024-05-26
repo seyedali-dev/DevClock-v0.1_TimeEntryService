@@ -3,27 +3,38 @@ package com.seyed.ali.timeentryservice.model.payload.response;
 import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public record TimeEntryResponse(
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class TimeEntryResponse {
+
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")
-        String timeEntryId,
+        private String timeEntryId;
 
         @ArraySchema(schema = @Schema(implementation = TimeSegmentDTO.class))
-        List<TimeSegmentDTO> timeSegmentDTOList,
+        private List<TimeSegmentDTO> timeSegmentDTOList;
 
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "A flag determining this time entry is billable", example = "true")
-        boolean billable,
+        private boolean billable;
 
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The hourly rate in BigDecimal format", example = "10.0")
-        String hourlyRate,
+        private String hourlyRate;
 
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Total time recorded", example = "00:00:18")
-        String totalDuration,
+        private String totalDuration;
 
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for associated project with the time entry", example = "12345")
-        String projectId
+        private String projectId;
 
-) {
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the task to associate the task with time entry", example = "12345")
+        private String taskId;
+
 }
