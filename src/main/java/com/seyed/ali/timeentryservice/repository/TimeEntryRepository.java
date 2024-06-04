@@ -14,4 +14,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, String> {
 
     List<TimeEntry> findByProjectId(String projectId);
 
+    List<TimeEntry> findByTaskId(String taskId);
+
 }
