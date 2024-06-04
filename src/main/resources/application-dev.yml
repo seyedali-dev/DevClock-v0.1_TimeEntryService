@@ -71,3 +71,22 @@ authentication:
     user-persistence-controller:
       base-url: http://${AUTHENTICATION_SERVICE_HANDLE_USER_BASE_URL:localhost:8081}/keycloak-user
       handle-user-url: /handle-user
+
+--- # Kafka
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: project_group_timeentry
+      auto-offset-reset: earliest
+
+      #configure deserialize classes for key & value pair
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: ProjectEvent:com.seyed.ali.timeentryservice.model.payload.ProjectDTO
+
+        #custom
+    topic:
+      name: project_name

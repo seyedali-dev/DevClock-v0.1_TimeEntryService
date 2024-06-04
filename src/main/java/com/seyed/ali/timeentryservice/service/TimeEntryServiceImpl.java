@@ -113,4 +113,19 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         this.timeEntryRepository.deleteById(timeEntryId);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    @CacheEvict(
+            cacheNames = TimeEntryCacheManager.TIME_ENTRY_CACHE,
+            key = "#timeEntry.timeEntryId"
+    )
+    public void deleteTimeEntry(TimeEntry timeEntry) {
+        TimeEntry foundTimeEntry = this.timeEntryRepository.findById(timeEntry.getTimeEntryId())
+                .orElseThrow(() -> new ResourceNotFoundException("The provided timeEntryId does not exist"));
+        this.timeEntryRepository.delete(foundTimeEntry);
+    }
+
 }

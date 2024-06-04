@@ -55,10 +55,17 @@ public interface TimeEntryService {
     TimeEntry updateTimeEntryManually(String id, TimeEntryDTO timeEntryDTO);
 
     /**
-     * Deletes a time entry.
+     * Deletes a time entry by ID.
      *
      * @param timeEntryId The ID of the time entry to be deleted.
      */
     void deleteTimeEntry(String timeEntryId);
+
+    /**
+     * Deletes a time entry.
+     *
+     * @param timeEntry The time entry to be deleted.
+     */
+    void deleteTimeEntry(TimeEntry timeEntry);
 
 }
