@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * DTO for {@link com.seyed.ali.TaskService.model.domain.Task}
+ * DTO for {@link com.seyed.ali.taskservice.model.domain.Task}
  */
 @Data
 @Builder
