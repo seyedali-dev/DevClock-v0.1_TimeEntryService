@@ -73,7 +73,15 @@ public class TimeEntryConverter {
         }
 
         String totalDurationStr = this.timeParser.parseDurationToString(totalDuration);
-        return new TimeEntryResponse(timeEntry.getTimeEntryId(), timeSegmentDTOList, timeEntry.isBillable(), hourlyRate, totalDurationStr, timeEntry.getProjectId(), timeEntry.getTaskId());
+        return TimeEntryResponse.builder()
+                .timeEntryId(timeEntry.getTimeEntryId())
+                .projectId(timeEntry.getProjectId())
+                .taskId(timeEntry.getTaskId())
+                .totalDuration(totalDurationStr)
+                .billable(timeEntry.isBillable())
+                .hourlyRate(hourlyRate)
+                .timeSegmentDTOList(timeSegmentDTOList)
+                .build();
     }
 
     /**
@@ -90,7 +98,16 @@ public class TimeEntryConverter {
                 : null;
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getEndTime());
         String durationStr = this.timeParser.parseDurationToString(lastTimeSegment.getDuration());
-        return new TimeEntryDTO(timeEntry.getTimeEntryId(), startTimeString, endTimeStr, timeEntry.isBillable(), hourlyRate, durationStr, timeEntry.getProjectId(), timeEntry.getTaskId());
+        return TimeEntryDTO.builder()
+                .timeEntryId(timeEntry.getTimeEntryId())
+                .projectId(timeEntry.getProjectId())
+                .taskId(timeEntry.getTaskId())
+                .startTime(startTimeString)
+                .endTime(endTimeStr)
+                .billable(timeEntry.isBillable())
+                .hourlyRate(hourlyRate)
+                .duration(durationStr)
+                .build();
     }
 
     /**

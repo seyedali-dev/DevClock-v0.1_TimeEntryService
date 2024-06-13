@@ -128,4 +128,13 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         this.timeEntryRepository.delete(foundTimeEntry);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public TimeEntry getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException {
+        return null;
+    }
+
 }

@@ -63,13 +63,30 @@ class TimeEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .startTime("2024-05-11 08:00:00")
+                .endTime("2024-05-11 10:00:00")
+                .duration("02:00:00")
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
         this.timeEntryDTOS.add(timeEntryDTO);
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
+        this.timeEntryResponse = TimeEntryResponse.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .totalDuration("02:00:00")
+                .timeSegmentDTOList(this.timeSegmentDTOList)
+                .build();
         this.timeEntriesResponse.add(timeEntryResponse);
 
         this.timeEntry = new TimeEntry();
@@ -174,7 +191,16 @@ class TimeEntryControllerTest {
     @Test
     public void addTimeEntryManuallyTest() throws Exception {
         // given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00", "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .startTime("2024-05-11 08:00:00")
+                .endTime("2024-05-11 10:00:00")
+                .duration("02:00:00")
+                .billable(false)
+                .hourlyRate(null)
+                .build();
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
         String responseMessage = "startTime(" + timeEntryDTO.getStartTime() + ") " +
                 " | endTime (" + timeEntryDTO.getEndTime() + ")" +

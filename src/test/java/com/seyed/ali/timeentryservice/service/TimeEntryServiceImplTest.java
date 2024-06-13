@@ -77,7 +77,15 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", this.startTimeStr, this.endTimeStr, this.durationStr, "userId");
 
-        TimeEntryResponse timeEntryResponse = new TimeEntryResponse("1", List.of(timeSegmentDTO), false, "10.0", this.durationStr, "1", "1");
+        TimeEntryResponse timeEntryResponse = TimeEntryResponse.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .billable(false)
+                .hourlyRate("10.0")
+                .totalDuration(this.durationStr)
+                .timeSegmentDTOList(List.of(timeSegmentDTO))
+                .build();
     }
 
     @Test
@@ -146,7 +154,16 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     @Test
     @DisplayName("addTimeEntryManually should success when duration is present")
     public void addTimeEntryManually_WithDuration_Success() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr, "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId(null)
+                .projectId("1")
+                .taskId("1")
+                .startTime(this.startTimeStr)
+                .endTime(this.endTimeStr)
+                .duration(this.durationStr)
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
 
         when(this.timeEntryUtility.createTimeEntry(timeEntryDTO)).thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(this.timeEntry);
@@ -169,8 +186,16 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     @DisplayName("addTimeEntryManually should success when duration is not present")
     public void addTimeEntryManually_WithoutDuration_Success() {
         // Given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), null, "1", "1");
-
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId(null)
+                .projectId("1")
+                .taskId("1")
+                .startTime(this.startTimeStr)
+                .endTime(this.endTimeStr)
+                .duration(this.durationStr)
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
         when(this.timeEntryUtility.createTimeEntry(timeEntryDTO)).thenReturn(this.timeEntry);
         when(this.timeEntryRepository.save(isA(TimeEntry.class))).thenReturn(this.timeEntry);
         when(this.timeParser.parseTimeToString(this.startTime, this.endTime, this.duration)).thenReturn("startTime(2024-05-11 08:00:00) | endTime(2024-05-11 10:00:00) | duration(02:00:00)");
@@ -193,11 +218,29 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     public void updateTimeEntryTest_ValidTimeEntryId_Success() {
         // Given
         String timeEntryId = "Some_timeEntry_id";
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO(null, this.startTimeStr, this.endTimeStr, false, BigDecimal.ZERO.toString(), this.durationStr, "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId(null)
+                .projectId("1")
+                .taskId("1")
+                .startTime(this.startTimeStr)
+                .endTime(this.endTimeStr)
+                .duration(this.durationStr)
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
 
         String updatedStartTimeStr = parseLocalDateTimeToString(this.startTime.plusHours(1));
         String updatedEndTimeStr = parseLocalDateTimeToString(this.endTime.plusHours(1));
-        TimeEntryDTO expectedUpdatedTimeEntryDTO = new TimeEntryDTO(null, updatedStartTimeStr, updatedEndTimeStr, true, BigDecimal.TWO.toString(), this.durationStr, "1", "1");
+        TimeEntryDTO expectedUpdatedTimeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId(null)
+                .projectId("1")
+                .taskId("1")
+                .startTime(updatedStartTimeStr)
+                .endTime(updatedEndTimeStr)
+                .duration(this.durationStr)
+                .billable(true)
+                .hourlyRate(BigDecimal.TWO.toString())
+                .build();
         TimeEntry expectedUpdateTimeEntry = new TimeEntry();
         expectedUpdateTimeEntry.setBillable(expectedUpdatedTimeEntryDTO.isBillable());
         expectedUpdateTimeEntry.setHourlyRate(new BigDecimal(expectedUpdatedTimeEntryDTO.getHourlyRate()));
@@ -223,6 +266,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     }
 
     @Test
+    @DisplayName("deleteTimeEntry should delete when timeEntryId is present")
     public void deleteTimeEntryTest() {
         // Given
         String id = "Some_timeEntry_id";
@@ -237,5 +281,19 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
         verify(this.timeEntryRepository, times(1))
                 .deleteById(id);
     }
+
+    @Test
+    @DisplayName("getTimeEntriesByProjectCriteria should return success when criteriaIsProjectAndIsValid")
+    public void getTimeEntriesByProjectCriteria_CriteriaIsProjectAndIsValid_Success() throws Exception {
+        // Given (Arrange) - Set up the conditions for your test.
+
+
+        // When (Act) - Call the method you're testing.
+
+
+        // Then (Assert) - Check the result.
+
+    }
+
 
 }
