@@ -75,6 +75,6 @@ public interface TimeEntryService {
      * @return List of Found TimeEntries.
      * @throws ResourceNotFoundException If the project is not found.
      */
-    TimeEntry getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
+    List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
 
 }

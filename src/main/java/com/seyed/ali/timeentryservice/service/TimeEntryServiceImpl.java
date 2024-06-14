@@ -1,8 +1,10 @@
 package com.seyed.ali.timeentryservice.service;
 
+import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
@@ -27,6 +29,7 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
     private final TimeEntryCacheManager timeEntryCacheManager;
+    private final ProjectServiceClient projectServiceClient;
 
     /**
      * {@inheritDoc}
@@ -133,8 +136,9 @@ public class TimeEntryServiceImpl implements TimeEntryService {
      */
     @Override
     @Transactional
-    public TimeEntry getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException {
-        return null;
+    public List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException {
+        ProjectDTO projectDTO = this.projectServiceClient.getProjectByNameOrId(projectCriteria);
+        return this.timeEntryRepository.findByProjectId(projectDTO.getProjectId());
     }
 
 }

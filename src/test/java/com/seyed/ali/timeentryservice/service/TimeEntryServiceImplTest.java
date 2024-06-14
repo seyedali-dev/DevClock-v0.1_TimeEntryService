@@ -1,9 +1,11 @@
 package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.AuthenticationServiceClient;
+import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
+import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
@@ -46,6 +48,7 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     private @Mock TimeEntryUtility timeEntryUtility;
     private @Mock TimeEntryConverter timeEntryConverter;
     private @Mock TimeEntryCacheManager timeEntryCacheManager;
+    private @Mock ProjectServiceClient projectServiceClient;
 
     private String startTimeStr;
     private String endTimeStr;
@@ -283,17 +286,26 @@ class TimeEntryServiceImplTest extends TimeParserUtilForTests {
     }
 
     @Test
-    @DisplayName("getTimeEntriesByProjectCriteria should return success when criteriaIsProjectAndIsValid")
-    public void getTimeEntriesByProjectCriteria_CriteriaIsProjectAndIsValid_Success() throws Exception {
+    @DisplayName("getTimeEntriesByProjectCriteria should return success when criteriaIsProject_ProjectIDAndIsValid")
+    public void getTimeEntriesByProjectCriteria_CriteriaIsProject_ProjectIDAndIsValid_Success() {
         // Given (Arrange) - Set up the conditions for your test.
+        String projectId = "1";
 
+        ProjectDTO projectDTO = ProjectDTO.builder().projectId(projectId).projectName("projectName").build();
+        when(this.projectServiceClient.getProjectByNameOrId(isA(String.class))).thenReturn(projectDTO);
+
+        List<TimeEntry> timeEntryList = List.of(this.timeEntry);
+        when(this.timeEntryRepository.findByProjectId(projectDTO.getProjectId())).thenReturn(timeEntryList);
 
         // When (Act) - Call the method you're testing.
-
+        List<TimeEntry> result = this.timeEntryService.getTimeEntriesByProjectCriteria(projectId);
+        System.out.println(result);
 
         // Then (Assert) - Check the result.
+        assertThat(result).isNotNull().hasSize(1);
+        assertThat(result.getLast().getTimeEntryId()).isEqualTo(this.timeEntry.getTimeEntryId());
 
+        verify(this.timeEntryRepository, times(1)).findByProjectId(isA(String.class));
     }
-
 
 }

@@ -2,6 +2,7 @@ package com.seyed.ali.timeentryservice.model.payload;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * DTO for {@link com.seyed.ali.projectservice.model.domain.Project}
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProjectDTO implements Serializable {

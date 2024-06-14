@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -291,6 +292,33 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("NO_CONTENT")))
                 .andExpect(jsonPath("$.message", is("Time entry deleted successfully.")));
+    }
+
+    @Test
+    public void getTimeEntriesByProjectTest() throws Exception {
+        // Given
+        String projectId = "1";
+        when(this.timeEntryService.getTimeEntriesByProjectCriteria(isA(String.class))).thenReturn(this.timeEntries);
+
+        String someAuthority = "some_authority";
+
+        // When
+        ResultActions response = this.mockMvc.perform(
+                MockMvcRequestBuilders.get(this.baseUrl + "/project/" + projectId)
+                        .accept(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
+        );
+
+        // Then
+        response
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("OK")))
+                .andExpect(jsonPath("$.message", is("TimeEntries - Project")))
+                .andExpect(jsonPath("$.data[0].timeEntryId", is("1")))
+                .andExpect(jsonPath("$.data[0].projectId", is("1")))
+        ;
     }
 
 }
