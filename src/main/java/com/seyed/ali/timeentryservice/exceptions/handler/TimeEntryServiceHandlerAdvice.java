@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.seyed.ali.timeentryservice.exceptions.OperationNotSupportedException;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.payload.response.Result;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,16 @@ public class TimeEntryServiceHandlerAdvice {
                 NOT_ACCEPTABLE,
                 "This operation is not supported.",
                 "ServerMessage - " + e.getMessage()
+        ));
+    }
+
+    @ExceptionHandler({ConnectException.class})
+    public ResponseEntity<Result> handleConnectException(ConnectException e) {
+        return ResponseEntity.status(SERVICE_UNAVAILABLE).body(new Result(
+                false,
+                SERVICE_UNAVAILABLE,
+                "The service is not available 👎🏻",
+                "ServerMessage 🚫 - " + e.getMessage()
         ));
     }
 
