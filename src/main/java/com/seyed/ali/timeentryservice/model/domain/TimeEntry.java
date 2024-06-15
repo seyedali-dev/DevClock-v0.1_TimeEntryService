@@ -1,5 +1,6 @@
 package com.seyed.ali.timeentryservice.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,6 +31,7 @@ public class TimeEntry implements Serializable {
     @OneToMany(mappedBy = "timeEntry", cascade = CascadeType.ALL)
     @ToString.Exclude
     @Builder.Default
+    @JsonManagedReference // this is the forward part of the relationship – the one that gets serialized normally
     private List<TimeSegment> timeSegmentList = new ArrayList<>();
 
     private String userId;
