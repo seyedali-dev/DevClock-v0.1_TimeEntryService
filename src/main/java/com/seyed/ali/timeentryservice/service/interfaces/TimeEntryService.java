@@ -68,4 +68,13 @@ public interface TimeEntryService {
      */
     void deleteTimeEntry(TimeEntry timeEntry);
 
+    /**
+     * Fetches the time-entries by project(either it's ID or Name).
+     *
+     * @param projectCriteria either the ID or the Name of the project.
+     * @return List of Found TimeEntries.
+     * @throws ResourceNotFoundException If the project is not found.
+     */
+    List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
+
 }

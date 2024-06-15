@@ -78,7 +78,16 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
         String endTimeStr = this.timeParser.parseLocalDateTimeToString(endTime);
         String durationStr = this.timeParser.parseDurationToString(totalDuration);
 
-        return new TimeEntryDTO(null, startTimeStr, endTimeStr, timeEntry.isBillable(), timeEntry.getHourlyRate().toString(), durationStr, timeEntry.getProjectId(), timeEntry.getTaskId());
+        return TimeEntryDTO.builder()
+                .timeEntryId(null)
+                .projectId(timeEntry.getProjectId())
+                .taskId(timeEntry.getTaskId())
+                .startTime(startTimeStr)
+                .endTime(endTimeStr)
+                .duration(durationStr)
+                .billable(timeEntry.isBillable())
+                .hourlyRate(timeEntry.getHourlyRate().toString())
+                .build();
     }
 
     /**
@@ -98,7 +107,16 @@ public class TimeEntryTrackingServiceImpl implements TimeEntryTrackingService {
 
         String hourlyRate = timeEntry.getHourlyRate() != null ? timeEntry.getHourlyRate().toString() : null;
         String startTimeStr = this.timeParser.parseLocalDateTimeToString(timeEntry.getTimeSegmentList().getLast().getStartTime());
-        return new TimeEntryDTO(timeEntryId, startTimeStr, null, timeEntry.isBillable(), hourlyRate, null, timeEntry.getProjectId(), timeEntry.getTaskId());
+        return TimeEntryDTO.builder()
+                .timeEntryId(timeEntryId)
+                .projectId(timeEntry.getProjectId())
+                .taskId(timeEntry.getTaskId())
+                .startTime(startTimeStr)
+                .endTime(null)
+                .duration(null)
+                .billable(timeEntry.isBillable())
+                .hourlyRate(hourlyRate)
+                .build();
     }
 
 }

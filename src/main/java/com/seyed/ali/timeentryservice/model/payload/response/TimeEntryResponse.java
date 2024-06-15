@@ -16,12 +16,17 @@ import java.util.List;
 @NoArgsConstructor
 public class TimeEntryResponse {
 
+        // #######
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the time entry", example = "12345")
         private String timeEntryId;
 
-        @ArraySchema(schema = @Schema(implementation = TimeSegmentDTO.class))
-        private List<TimeSegmentDTO> timeSegmentDTOList;
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for associated project with the time entry", example = "12345")
+        private String projectId;
 
+        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the task to associate the task with time entry", example = "12345")
+        private String taskId;
+
+        // #######
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "A flag determining this time entry is billable", example = "true")
         private boolean billable;
 
@@ -31,10 +36,8 @@ public class TimeEntryResponse {
         @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Total time recorded", example = "00:00:18")
         private String totalDuration;
 
-        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for associated project with the time entry", example = "12345")
-        private String projectId;
-
-        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "Unique identifier for the task to associate the task with time entry", example = "12345")
-        private String taskId;
+        // #######
+        @ArraySchema(schema = @Schema(implementation = TimeSegmentDTO.class))
+        private List<TimeSegmentDTO> timeSegmentDTOList;
 
 }

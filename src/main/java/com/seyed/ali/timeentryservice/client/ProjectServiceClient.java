@@ -1,6 +1,7 @@
 package com.seyed.ali.timeentryservice.client;
 
 import com.seyed.ali.timeentryservice.keycloak.util.KeycloakSecurityUtil;
+import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -35,6 +36,12 @@ public class ProjectServiceClient extends ServiceClient {
         Result booleanResult = this.sendRequest(url, HttpMethod.GET, new ParameterizedTypeReference<>() {
         });
         return (boolean) booleanResult.getData();
+    }
+
+    public ProjectDTO getProjectByNameOrId(String projectInfo) {
+        String url = this.projectServiceBaseURL + "/projects?identifier=" + projectInfo;
+        return this.sendRequest(url, HttpMethod.GET, new ParameterizedTypeReference<>() {
+        });
     }
 
 }

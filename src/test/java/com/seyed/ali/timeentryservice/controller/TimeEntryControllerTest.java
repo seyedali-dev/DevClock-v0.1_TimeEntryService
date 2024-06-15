@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -63,13 +64,30 @@ class TimeEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .startTime("2024-05-11 08:00:00")
+                .endTime("2024-05-11 10:00:00")
+                .duration("02:00:00")
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
         this.timeEntryDTOS.add(timeEntryDTO);
 
         TimeSegmentDTO timeSegmentDTO = new TimeSegmentDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", "02:00:00", "01");
         this.timeSegmentDTOList.add(timeSegmentDTO);
 
-        this.timeEntryResponse = new TimeEntryResponse("1", this.timeSegmentDTOList, false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
+        this.timeEntryResponse = TimeEntryResponse.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .totalDuration("02:00:00")
+                .timeSegmentDTOList(this.timeSegmentDTOList)
+                .build();
         this.timeEntriesResponse.add(timeEntryResponse);
 
         this.timeEntry = new TimeEntry();
@@ -174,7 +192,16 @@ class TimeEntryControllerTest {
     @Test
     public void addTimeEntryManuallyTest() throws Exception {
         // given
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, null, "02:00:00", "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .startTime("2024-05-11 08:00:00")
+                .endTime("2024-05-11 10:00:00")
+                .duration("02:00:00")
+                .billable(false)
+                .hourlyRate(null)
+                .build();
         String json = this.objectMapper.writeValueAsString(timeEntryDTO);
         String responseMessage = "startTime(" + timeEntryDTO.getStartTime() + ") " +
                 " | endTime (" + timeEntryDTO.getEndTime() + ")" +
@@ -265,6 +292,33 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("NO_CONTENT")))
                 .andExpect(jsonPath("$.message", is("Time entry deleted successfully.")));
+    }
+
+    @Test
+    public void getTimeEntriesByProjectTest() throws Exception {
+        // Given
+        String projectId = "1";
+        when(this.timeEntryService.getTimeEntriesByProjectCriteria(isA(String.class))).thenReturn(this.timeEntries);
+
+        String someAuthority = "some_authority";
+
+        // When
+        ResultActions response = this.mockMvc.perform(
+                MockMvcRequestBuilders.get(this.baseUrl + "/project/" + projectId)
+                        .accept(APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
+        );
+
+        // Then
+        response
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag", is(true)))
+                .andExpect(jsonPath("$.httpStatus", is("OK")))
+                .andExpect(jsonPath("$.message", is("TimeEntries - Project")))
+                .andExpect(jsonPath("$.data[0].timeEntryId", is("1")))
+                .andExpect(jsonPath("$.data[0].projectId", is("1")))
+        ;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.seyed.ali.timeentryservice.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -26,6 +27,7 @@ public class TimeSegment implements Serializable {
     private Duration duration;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonBackReference // this is the back part of the relationship – it will be omitted from serialization to avoid the infinite loop
     private TimeEntry timeEntry;
 
 }

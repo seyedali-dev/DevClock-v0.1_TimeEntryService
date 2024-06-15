@@ -51,7 +51,16 @@ class TimeEntryTrackingControllerTest {
 
     @BeforeEach
     void setUp() {
-        TimeEntryDTO timeEntryDTO = new TimeEntryDTO("1", "2024-05-11 08:00:00", "2024-05-11 10:00:00", false, BigDecimal.ZERO.toString(), "02:00:00", "1", "1");
+        TimeEntryDTO timeEntryDTO = TimeEntryDTO.builder()
+                .timeEntryId("1")
+                .projectId("1")
+                .taskId("1")
+                .startTime("2024-05-11 08:00:00")
+                .endTime("2024-05-11 10:00:00")
+                .duration("02:00:00")
+                .billable(false)
+                .hourlyRate(BigDecimal.ZERO.toString())
+                .build();
 
         this.timeEntries.add(timeEntryDTO);
     }
