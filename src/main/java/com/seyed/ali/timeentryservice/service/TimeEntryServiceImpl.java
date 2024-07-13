@@ -1,10 +1,12 @@
 package com.seyed.ali.timeentryservice.service;
 
 import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
+import com.seyed.ali.timeentryservice.client.TaskServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
+import com.seyed.ali.timeentryservice.model.payload.TaskDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
@@ -30,6 +32,7 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     private final TimeEntryUtility timeEntryUtility;
     private final TimeEntryCacheManager timeEntryCacheManager;
     private final ProjectServiceClient projectServiceClient;
+    private final TaskServiceClient taskServiceClient;
 
     /**
      * {@inheritDoc}
@@ -139,6 +142,16 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     public List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException {
         ProjectDTO projectDTO = this.projectServiceClient.getProjectByNameOrId(projectCriteria);
         return this.timeEntryRepository.findByProjectId(projectDTO.getProjectId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public List<TimeEntry> getTimeEntriesByTaskName(String taskName) throws ResourceNotFoundException {
+        TaskDTO taskDTO = this.taskServiceClient.getTaskByName(taskName);
+        return this.timeEntryRepository.findByTaskId(taskDTO.getTaskId());
     }
 
 }

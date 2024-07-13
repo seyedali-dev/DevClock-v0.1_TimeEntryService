@@ -77,4 +77,13 @@ public interface TimeEntryService {
      */
     List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
 
+    /**
+     * Fetches the time-entries by task(Name).
+     *
+     * @param taskName name of the task.
+     * @return List of Found TimeEntries.
+     * @throws ResourceNotFoundException If the project is not found.
+     */
+    List<TimeEntry> getTimeEntriesByTaskName(String taskName);
+
 }

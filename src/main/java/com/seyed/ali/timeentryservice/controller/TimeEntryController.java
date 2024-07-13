@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -120,7 +119,7 @@ public class TimeEntryController {
 
     // ###################################################################################
     @GetMapping("/project/{projectCriteria}")
-    @Operation(summary = "Get all time entries by project(ID or Name)", description = "Fetches all time entries from the database based on name or ID", responses = {
+    @Operation(summary = "Get all time entries by project(ID or Name)", description = "Fetches all time entries from the database based on name or ID of project", responses = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successful operation",
@@ -133,6 +132,23 @@ public class TimeEntryController {
                 OK,
                 "TimeEntries - Project",
                 this.timeEntryService.getTimeEntriesByProjectCriteria(projectCriteria)
+        ));
+    }
+
+    @GetMapping("/task/{taskName}")
+    @Operation(summary = "Get all time entries by task(name)", description = "Fetches all time entries from the database based on name of Task", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntry.class)))
+            )
+    })
+    public ResponseEntity<Result> getTimeEntriesByTask(@PathVariable String taskName) {
+        return ResponseEntity.ok(new Result(
+                true,
+                OK,
+                "TimeEntries - Project",
+                this.timeEntryService.getTimeEntriesByTaskName(taskName)
         ));
     }
 
