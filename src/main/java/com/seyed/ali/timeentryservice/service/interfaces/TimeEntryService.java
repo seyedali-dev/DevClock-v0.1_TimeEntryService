@@ -86,4 +86,13 @@ public interface TimeEntryService {
      */
     List<TimeEntry> getTimeEntriesByTaskName(String taskName);
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Fetches the time-entries for the last month.
+     *
+     * @return List of TimeEntries for the last month.
+     */
+    List<TimeEntry> getTimeEntriesForLastMonth();
+
 }

@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -152,6 +153,24 @@ public class TimeEntryServiceImpl implements TimeEntryService {
     public List<TimeEntry> getTimeEntriesByTaskName(String taskName) throws ResourceNotFoundException {
         TaskDTO taskDTO = this.taskServiceClient.getTaskByName(taskName);
         return this.timeEntryRepository.findByTaskId(taskDTO.getTaskId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<TimeEntry> getTimeEntriesForLastMonth() {
+        // 'start' represents the start of the first day of the previous month
+        LocalDateTime start = LocalDateTime.now()
+                .minusMonths(1) // Get the same day of the previous month
+                .withDayOfMonth(1) // Set the day of the month to 1 to get the first day of the previous month
+                .withHour(0).withMinute(0).withSecond(0); // Set the time to 00:00:00 to get the start of the day
+
+        // 'end' represents the end of the last day of the previous month
+        LocalDateTime end = start.plusMonths(1) // Get the first day of the current month
+                .minusSeconds(1); // Get the last moment of the last day of the previous month
+
+        return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
     }
 
 }

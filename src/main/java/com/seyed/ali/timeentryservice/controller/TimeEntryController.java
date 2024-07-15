@@ -152,4 +152,22 @@ public class TimeEntryController {
         ));
     }
 
+    @GetMapping("/date/last-month")
+    @Operation(summary = "Get all time entries for the last month", description = "Fetches all time entries from the database for the last month", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntry.class)))
+            )
+    })
+    public ResponseEntity<Result> getTimeEntriesForLastMonth() {
+        List<TimeEntry> timeEntriesForLastMonth = this.timeEntryService.getTimeEntriesForLastMonth();
+        return ResponseEntity.ok(new Result(
+                true,
+                OK,
+                "TimeEntries - Date::LastMonth__Size=" + timeEntriesForLastMonth.size(),
+                timeEntriesForLastMonth
+        ));
+    }
+
 }
