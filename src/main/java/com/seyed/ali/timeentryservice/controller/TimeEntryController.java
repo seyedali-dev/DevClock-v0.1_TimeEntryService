@@ -188,4 +188,22 @@ public class TimeEntryController {
         ));
     }
 
+    @GetMapping("/date/last-week")
+    @Operation(summary = "Get all time entries for the last week", description = "Fetches all time entries from the database for the last week", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntry.class)))
+            )
+    })
+    public ResponseEntity<Result> getTimeEntriesForLastWeek() {
+        List<TimeEntry> timeEntriesForLastWeek = this.timeEntryService.getTimeEntriesForLastWeek();
+        return ResponseEntity.ok(new Result(
+                true,
+                OK,
+                "TimeEntries - Date::LastWeek__Size=" + timeEntriesForLastWeek.size(),
+                timeEntriesForLastWeek
+        ));
+    }
+
 }

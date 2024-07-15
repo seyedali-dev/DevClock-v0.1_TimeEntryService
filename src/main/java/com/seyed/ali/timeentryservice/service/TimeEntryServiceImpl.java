@@ -20,7 +20,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @Slf4j
@@ -186,6 +188,26 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         // 'end' represents end of yesterday
         LocalDateTime end = start.plusDays(1) // Get today
                 .minusSeconds(1); // Get the last moment of today
+
+        return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<TimeEntry> getTimeEntriesForLastWeek() {
+        // TODO: start part is AI Generated. I'm confused asf myself :)
+        // 'start' represents the start of the Saturday of the previous week
+        LocalDateTime start = LocalDateTime.now()
+                .minusWeeks(1) // Get the same day of the previous week
+                .with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)) // Adjust to the next or same Saturday
+                .minusWeeks(1) // Then go to the previous week
+                .withHour(0).withMinute(0).withSecond(0); // Set the time to 00:00:00 to get the start of the day
+
+        // 'end' represents the end of the Friday of the previous week
+        LocalDateTime end = start.plusWeeks(1) // Add one week to the start date to get the Saturday of the current week
+                .minusSeconds(1); // Subtract one second to get the last moment of the Friday of the previous week
 
         return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
     }
