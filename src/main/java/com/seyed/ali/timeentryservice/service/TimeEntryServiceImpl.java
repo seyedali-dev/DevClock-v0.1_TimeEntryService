@@ -173,4 +173,21 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<TimeEntry> getTimeEntriesForLastDay() {
+        // 'start' represents yesterday
+        LocalDateTime start = LocalDateTime.now()
+                .minusDays(1) // Get yesterday
+                .withHour(0).withMinute(0).withSecond(0); // Set the time to 00:00:00 to get the start of the day
+
+        // 'end' represents end of yesterday
+        LocalDateTime end = start.plusDays(1) // Get today
+                .minusSeconds(1); // Get the last moment of today
+
+        return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
+    }
+
 }

@@ -95,4 +95,11 @@ public interface TimeEntryService {
      */
     List<TimeEntry> getTimeEntriesForLastMonth();
 
+    /**
+     * Fetches the time-entries for the last day.
+     *
+     * @return List of TimeEntries for the last day.
+     */
+    List<TimeEntry> getTimeEntriesForLastDay();
+
 }
