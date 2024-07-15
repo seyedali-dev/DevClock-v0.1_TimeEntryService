@@ -50,7 +50,9 @@ public class DBDataGenerator {
         List<TimeEntry> timeEntryList = new ArrayList<>();
 
         // Define the start and end dates for the TimeEntry objects
-        LocalDateTime start = LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime start = LocalDateTime.now()
+                .withDayOfMonth(1) // Set the beginning day of the current-month
+                .withHour(0).withMinute(0).withSecond(0); // Set the beginning of the day of first day of the month
         LocalDateTime end = start.plusMonths(1);
 
         // Iterate over each day between the start and end dates
