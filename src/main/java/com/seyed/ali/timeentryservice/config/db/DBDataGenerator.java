@@ -27,11 +27,11 @@ public class DBDataGenerator {
     public CommandLineRunner commandLineRunner() {
         return args -> {
             // user -> default, project -> 1
-            this.timeEntryRepository.saveAll(this.generateTimeEntries("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "1", "1"));
-            this.timeEntryRepository.saveAll(this.generateTimeEntries("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "1", "2"));
+            this.timeEntryRepository.saveAll(this.generateTimeEntriesForThisMonth("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "1", "1"));
+            this.timeEntryRepository.saveAll(this.generateTimeEntriesForLastMonth("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "1", "2"));
             // user -> default, project -> 2
-            this.timeEntryRepository.saveAll(this.generateTimeEntries("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "2", "3"));
-            this.timeEntryRepository.saveAll(this.generateTimeEntries("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "2", "4"));
+            this.timeEntryRepository.saveAll(this.generateTimeEntriesForThisMonth("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "2", "3"));
+            this.timeEntryRepository.saveAll(this.generateTimeEntriesForLastMonth("c3140cf9-1552-4e38-bfb5-3f9e99f65ea3", "2", "4"));
         };
     }
 
@@ -39,16 +39,14 @@ public class DBDataGenerator {
      * Generates a list of TimeEntry objects for a given user, project, and task.
      * Each TimeEntry is associated with a list of TimeSegment objects.
      * <p>
-     * Data will be entered for a month, and each day will have 2 {@link TimeEntry} and each TimeEntry will have 5 {@link TimeSegment}.
+     * Data will be entered for current-month, and each day will have 2 {@link TimeEntry} and each TimeEntry will have 5 {@link TimeSegment}.
      *
      * @param userId    The ID of the user for whom the TimeEntry objects are generated.
      * @param projectId The ID of the project for which the TimeEntry objects are generated.
      * @param taskId    The ID of the task for which the TimeEntry objects are generated.
      * @return A list of TimeEntry objects.
      */
-    public List<TimeEntry> generateTimeEntries(String userId, String projectId, String taskId) {
-        List<TimeEntry> timeEntryList = new ArrayList<>();
-
+    public List<TimeEntry> generateTimeEntriesForThisMonth(String userId, String projectId, String taskId) {
         // Define the start and end dates for the TimeEntry objects
         LocalDateTime start = LocalDateTime.now()
                 .withDayOfMonth(1) // Set the beginning day of the current-month
@@ -56,6 +54,36 @@ public class DBDataGenerator {
         LocalDateTime end = start.plusMonths(1);
 
         // Iterate over each day between the start and end dates
+        return getTimeEntriesForAMonth(userId, projectId, taskId, start, end);
+    }
+
+    /**
+     * Generates a list of TimeEntry objects for a given user, project, and task.
+     * Each TimeEntry is associated with a list of TimeSegment objects.
+     * <p>
+     * Data will be entered for last-month, and each day will have 2 {@link TimeEntry} and each TimeEntry will have 5 {@link TimeSegment}.
+     *
+     * @param userId    The ID of the user for whom the TimeEntry objects are generated.
+     * @param projectId The ID of the project for which the TimeEntry objects are generated.
+     * @param taskId    The ID of the task for which the TimeEntry objects are generated.
+     * @return A list of TimeEntry objects.
+     */
+    public List<TimeEntry> generateTimeEntriesForLastMonth(String userId, String projectId, String taskId) {
+        // Define the start and end dates for the TimeEntry objects
+        LocalDateTime start = LocalDateTime.now()
+                .minusMonths(1)
+                .withDayOfMonth(1) // Set the beginning day of the last-month
+                .withHour(0).withMinute(0).withSecond(0); // Set the beginning of the day of first day of the month
+        LocalDateTime end = start.plusMonths(1)
+                .minusSeconds(1);
+
+        // Iterate over each day between the start and end dates
+        return getTimeEntriesForAMonth(userId, projectId, taskId, start, end);
+    }
+
+    private List<TimeEntry> getTimeEntriesForAMonth(String userId, String projectId, String taskId, LocalDateTime start, LocalDateTime end) {
+        List<TimeEntry> timeEntryList = new ArrayList<>();
+
         for (LocalDateTime date = start; date.isBefore(end); date = date.plusDays(1)) {
             // Create 2 TimeEntry objects for each day
             for (int i = 0; i < 2; i++) {
@@ -100,6 +128,5 @@ public class DBDataGenerator {
         // Return the list of TimeEntry objects
         return timeEntryList;
     }
-
 
 }
