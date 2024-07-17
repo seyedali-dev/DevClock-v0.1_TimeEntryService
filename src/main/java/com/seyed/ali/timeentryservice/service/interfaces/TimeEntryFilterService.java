@@ -3,6 +3,7 @@ package com.seyed.ali.timeentryservice.service.interfaces;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TimeEntryFilterService {
@@ -52,5 +53,12 @@ public interface TimeEntryFilterService {
      * @return List of TimeEntries for the last week.
      */
     List<TimeEntry> getTimeEntriesForToday();
+
+    /**
+     * Fetches the time-entries for the specified date.
+     *
+     * @return List of TimeEntries for the specified date.
+     */
+    List<TimeEntry> getTimeEntriesForSpecifiedDateRange(LocalDate startDate, LocalDate endDate);
 
 }

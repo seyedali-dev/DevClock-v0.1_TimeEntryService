@@ -8,14 +8,13 @@ import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
 import com.seyed.ali.timeentryservice.model.payload.TaskDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryFilterService;
-import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
-import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -121,6 +120,17 @@ public class TimeEntryFilterServiceImpl implements TimeEntryFilterService {
         LocalDateTime end = start
                 .withHour(23).withMinute(59).withSecond(59); // Set the time to 23:59:59 to Get the last moment of today
 
+        return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public List<TimeEntry> getTimeEntriesForSpecifiedDateRange(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate.atStartOfDay(); // Set start time to 00:00:00 of the start date
+        LocalDateTime end = endDate.atTime(23, 59, 59); // Set end time to 23:59:59 of the end date
         return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
     }
 
