@@ -7,7 +7,7 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
-import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryQueryService;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -40,14 +39,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SuppressWarnings({"unused", "FieldCanBeLocal", "MismatchedQueryAndUpdateOfCollection"})
-@WebMvcTest(TimeEntryController.class) /* since this is not in integration test, rather controller unit test */
+@WebMvcTest(TimeEntryQueryController.class) /* since this is not in integration test, rather controller unit test */
 @EnableConfigurationProperties /* to use application.yml-test file */
 @ActiveProfiles("test")
 @AutoConfigureMockMvc/* calling the api itself */
 @ContextConfiguration(classes = {EurekaClientTestConfiguration.class}) /* to call the configuration in the test (for service-registry configs) */
-class TimeEntryControllerTest {
+class TimeEntryQueryControllerTest {
 
-    private @MockBean TimeEntryService timeEntryService;
+    private @MockBean TimeEntryQueryService timeEntryQueryService;
     private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
     private @MockBean TimeEntryConverter timeEntryConverter;
     private @MockBean TimeParser timeParser;
@@ -125,7 +124,7 @@ class TimeEntryControllerTest {
     public void getTimeEntriesTest() throws Exception {
         //TODO: update the test
         // Given
-        when(this.timeEntryService.getTimeEntries()).thenReturn(this.timeEntries);
+        when(this.timeEntryQueryService.getTimeEntries()).thenReturn(this.timeEntries);
 
         String some_authority = "some_authority";
 
@@ -160,7 +159,7 @@ class TimeEntryControllerTest {
         // TODO: Update the test
         // Given
         String userId = "some_user_id";
-        when(this.timeEntryService.getUsersTimeEntry(userId)).thenReturn(this.timeEntry);
+        when(this.timeEntryQueryService.getUsersTimeEntry(userId)).thenReturn(this.timeEntry);
 
         String some_authority = "some_authority";
 
@@ -207,7 +206,7 @@ class TimeEntryControllerTest {
                 " | endTime (" + timeEntryDTO.getEndTime() + ")" +
                 " | duration(" + timeEntryDTO.getDuration() + ")";
 
-        when(this.timeEntryService.addTimeEntryManually(timeEntryDTO))
+        when(this.timeEntryQueryService.addTimeEntryManually(timeEntryDTO))
                 .thenReturn(responseMessage);
 
         String someAuthority = "some_authority";
@@ -273,7 +272,7 @@ class TimeEntryControllerTest {
         // Given
         String id = "1";
         doNothing()
-                .when(this.timeEntryService)
+                .when(this.timeEntryQueryService)
                 .deleteTimeEntry(id);
 
         String someAuthority = "some_authority";
@@ -292,33 +291,6 @@ class TimeEntryControllerTest {
                 .andExpect(jsonPath("$.flag", is(true)))
                 .andExpect(jsonPath("$.httpStatus", is("NO_CONTENT")))
                 .andExpect(jsonPath("$.message", is("Time entry deleted successfully.")));
-    }
-
-    @Test
-    public void getTimeEntriesByProjectTest() throws Exception {
-        // Given
-        String projectId = "1";
-        when(this.timeEntryService.getTimeEntriesByProjectCriteria(isA(String.class))).thenReturn(this.timeEntries);
-
-        String someAuthority = "some_authority";
-
-        // When
-        ResultActions response = this.mockMvc.perform(
-                MockMvcRequestBuilders.get(this.baseUrl + "/project/" + projectId)
-                        .accept(APPLICATION_JSON)
-                        .with(jwt().authorities(new SimpleGrantedAuthority(someAuthority)))
-        );
-
-        // Then
-        response
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.flag", is(true)))
-                .andExpect(jsonPath("$.httpStatus", is("OK")))
-                .andExpect(jsonPath("$.message", is("TimeEntries - Project")))
-                .andExpect(jsonPath("$.data[0].timeEntryId", is("1")))
-                .andExpect(jsonPath("$.data[0].projectId", is("1")))
-        ;
     }
 
 }

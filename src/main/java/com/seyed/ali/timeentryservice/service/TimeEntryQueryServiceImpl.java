@@ -1,14 +1,12 @@
 package com.seyed.ali.timeentryservice.service;
 
-import com.seyed.ali.timeentryservice.client.ProjectServiceClient;
 import com.seyed.ali.timeentryservice.exceptions.ResourceNotFoundException;
 import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
-import com.seyed.ali.timeentryservice.model.payload.ProjectDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.repository.TimeEntryRepository;
 import com.seyed.ali.timeentryservice.service.cache.TimeEntryCacheManager;
-import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryQueryService;
 import com.seyed.ali.timeentryservice.util.TimeEntryUtility;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +21,12 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TimeEntryServiceImpl implements TimeEntryService {
+public class TimeEntryQueryServiceImpl implements TimeEntryQueryService {
 
     private final TimeEntryRepository timeEntryRepository;
     private final TimeParser timeParser;
     private final TimeEntryUtility timeEntryUtility;
     private final TimeEntryCacheManager timeEntryCacheManager;
-    private final ProjectServiceClient projectServiceClient;
 
     /**
      * {@inheritDoc}
@@ -129,16 +126,6 @@ public class TimeEntryServiceImpl implements TimeEntryService {
         TimeEntry foundTimeEntry = this.timeEntryRepository.findById(timeEntry.getTimeEntryId())
                 .orElseThrow(() -> new ResourceNotFoundException("The provided timeEntryId does not exist"));
         this.timeEntryRepository.delete(foundTimeEntry);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException {
-        ProjectDTO projectDTO = this.projectServiceClient.getProjectByNameOrId(projectCriteria);
-        return this.timeEntryRepository.findByProjectId(projectDTO.getProjectId());
     }
 
 }

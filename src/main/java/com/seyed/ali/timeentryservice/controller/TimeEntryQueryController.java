@@ -5,7 +5,7 @@ import com.seyed.ali.timeentryservice.model.domain.TimeSegment;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.Result;
 import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
-import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryQueryService;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,10 +28,10 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/time")
 @SecurityRequirement(name = "Keycloak")
-@Tag(name = "Time Entry", description = "API for time entry operation")
-public class TimeEntryController {
+@Tag(name = "Time Entry - Query", description = "API for time entry query operation")
+public class TimeEntryQueryController {
 
-    private final TimeEntryService timeEntryService;
+    private final TimeEntryQueryService timeEntryQueryService;
     private final TimeEntryConverter timeEntryConverter;
     private final TimeParser timeParser;
 
@@ -45,7 +44,7 @@ public class TimeEntryController {
             )
     })
     public ResponseEntity<Result> getTimeEntries() {
-        List<TimeEntryResponse> timeEntryResponseList = this.timeEntryConverter.convertToTimeEntryResponseList(this.timeEntryService.getTimeEntries());
+        List<TimeEntryResponse> timeEntryResponseList = this.timeEntryConverter.convertToTimeEntryResponseList(this.timeEntryQueryService.getTimeEntries());
 
         return ResponseEntity.ok(new Result(
                 true,
@@ -58,7 +57,7 @@ public class TimeEntryController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get a user's time entry", description = "Fetches a specific user's time entry from the database")
     public ResponseEntity<Result> getUsersTimeEntry(@PathVariable String userId) {
-        TimeEntryResponse timeEntryResponse = this.timeEntryConverter.convertToTimeEntryResponse(this.timeEntryService.getUsersTimeEntry(userId));
+        TimeEntryResponse timeEntryResponse = this.timeEntryConverter.convertToTimeEntryResponse(this.timeEntryQueryService.getUsersTimeEntry(userId));
 
         return ResponseEntity.ok(new Result(
                 true,
@@ -71,7 +70,7 @@ public class TimeEntryController {
     @GetMapping("/{timeEntryId}")
     @Operation(summary = "Get a specific time entry", description = "Fetches a specific time entry from the database")
     public ResponseEntity<Result> getSpecificTimeEntry(@PathVariable String timeEntryId) {
-        TimeEntryResponse timeEntryResponse = this.timeEntryConverter.convertToTimeEntryResponse(this.timeEntryService.getTimeEntryById(timeEntryId));
+        TimeEntryResponse timeEntryResponse = this.timeEntryConverter.convertToTimeEntryResponse(this.timeEntryQueryService.getTimeEntryById(timeEntryId));
         return ResponseEntity.ok(new Result(
                 true,
                 OK,
@@ -87,14 +86,14 @@ public class TimeEntryController {
                 true,
                 CREATED,
                 "Time entry created successfully.",
-                this.timeEntryService.addTimeEntryManually(timeEntryDTO)
+                this.timeEntryQueryService.addTimeEntryManually(timeEntryDTO)
         ));
     }
 
     @PutMapping("/{timeEntryId}")
     @Operation(summary = "Update a time entry", description = "Updates a specific time entry in the database")
     public ResponseEntity<Result> updateTimeEntryManually(@Valid @PathVariable String timeEntryId, @RequestBody TimeEntryDTO timeEntryDTO) {
-        TimeEntry timeEntry = this.timeEntryService.updateTimeEntryManually(timeEntryId, timeEntryDTO);
+        TimeEntry timeEntry = this.timeEntryQueryService.updateTimeEntryManually(timeEntryId, timeEntryDTO);
         TimeSegment lastTimeSegment = timeEntry.getTimeSegmentList().getLast();
         String startTimeString = this.timeParser.parseLocalDateTimeToString(lastTimeSegment.getStartTime());
         TimeEntryDTO timeEntryDTOResponse = this.timeEntryConverter.createTimeEntryDTO(timeEntry, lastTimeSegment, startTimeString);
@@ -110,29 +109,11 @@ public class TimeEntryController {
     @DeleteMapping("/{timeEntryId}")
     @Operation(summary = "Delete a time entry", description = "Deletes a specific time entry from the database")
     public ResponseEntity<Result> deleteTimeEntry(@PathVariable String timeEntryId) {
-        this.timeEntryService.deleteTimeEntry(timeEntryId);
+        this.timeEntryQueryService.deleteTimeEntry(timeEntryId);
         return ResponseEntity.status(NO_CONTENT).body(new Result(
                 true,
                 NO_CONTENT,
                 "Time entry deleted successfully."
-        ));
-    }
-
-    // ###################################################################################
-    @GetMapping("/project/{projectCriteria}")
-    @Operation(summary = "Get all time entries by project(ID or Name)", description = "Fetches all time entries from the database based on name or ID", responses = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntry.class)))
-            )
-    })
-    public ResponseEntity<Result> getTimeEntriesByProject(@PathVariable String projectCriteria) {
-        return ResponseEntity.ok(new Result(
-                true,
-                OK,
-                "TimeEntries - Project",
-                this.timeEntryService.getTimeEntriesByProjectCriteria(projectCriteria)
         ));
     }
 

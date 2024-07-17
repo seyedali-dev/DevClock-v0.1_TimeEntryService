@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Interface for Time Entry service operations.
  */
-public interface TimeEntryService {
+public interface TimeEntryQueryService {
 
     /**
      * Retrieves a list of all time entries.
@@ -67,14 +67,5 @@ public interface TimeEntryService {
      * @param timeEntry The time entry to be deleted.
      */
     void deleteTimeEntry(TimeEntry timeEntry);
-
-    /**
-     * Fetches the time-entries by project(either it's ID or Name).
-     *
-     * @param projectCriteria either the ID or the Name of the project.
-     * @return List of Found TimeEntries.
-     * @throws ResourceNotFoundException If the project is not found.
-     */
-    List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
 
 }
