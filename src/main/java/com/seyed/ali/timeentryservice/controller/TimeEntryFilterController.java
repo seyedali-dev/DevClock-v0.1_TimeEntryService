@@ -25,7 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/time/filter")
 @SecurityRequirement(name = "Keycloak")
-@Tag(name = "Time Entry", description = "API for time entry filtering operation")
+@Tag(name = "Time Entry - Filter", description = "API for time entry filtering operation")
 public class TimeEntryFilterController {
 
     private final TimeEntryFilterService timeEntryFilterService;

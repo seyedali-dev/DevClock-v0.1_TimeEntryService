@@ -285,27 +285,4 @@ class TimeEntryQueryServiceImplTest extends TimeParserUtilForTests {
                 .deleteById(id);
     }
 
-    @Test
-    @DisplayName("getTimeEntriesByProjectCriteria should return success when criteriaIsProject_ProjectIDAndIsValid")
-    public void getTimeEntriesByProjectCriteria_CriteriaIsProject_ProjectIDAndIsValid_Success() {
-        // Given (Arrange) - Set up the conditions for your test.
-        String projectId = "1";
-
-        ProjectDTO projectDTO = ProjectDTO.builder().projectId(projectId).projectName("projectName").build();
-        when(this.projectServiceClient.getProjectByNameOrId(isA(String.class))).thenReturn(projectDTO);
-
-        List<TimeEntry> timeEntryList = List.of(this.timeEntry);
-        when(this.timeEntryRepository.findByProjectId(projectDTO.getProjectId())).thenReturn(timeEntryList);
-
-        // When (Act) - Call the method you're testing.
-        List<TimeEntry> result = this.timeEntryService.getTimeEntriesByProjectCriteria(projectId);
-        System.out.println(result);
-
-        // Then (Assert) - Check the result.
-        assertThat(result).isNotNull().hasSize(1);
-        assertThat(result.getLast().getTimeEntryId()).isEqualTo(this.timeEntry.getTimeEntryId());
-
-        verify(this.timeEntryRepository, times(1)).findByProjectId(isA(String.class));
-    }
-
 }

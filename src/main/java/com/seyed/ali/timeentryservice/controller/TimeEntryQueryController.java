@@ -28,7 +28,7 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/time")
 @SecurityRequirement(name = "Keycloak")
-@Tag(name = "Time Entry", description = "API for time entry query operation")
+@Tag(name = "Time Entry - Query", description = "API for time entry query operation")
 public class TimeEntryQueryController {
 
     private final TimeEntryQueryService timeEntryQueryService;
