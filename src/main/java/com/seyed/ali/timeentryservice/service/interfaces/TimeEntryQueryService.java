@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Interface for Time Entry service operations.
  */
-public interface TimeEntryService {
+public interface TimeEntryQueryService {
 
     /**
      * Retrieves a list of all time entries.
@@ -67,46 +67,5 @@ public interface TimeEntryService {
      * @param timeEntry The time entry to be deleted.
      */
     void deleteTimeEntry(TimeEntry timeEntry);
-
-    /**
-     * Fetches the time-entries by project(either it's ID or Name).
-     *
-     * @param projectCriteria either the ID or the Name of the project.
-     * @return List of Found TimeEntries.
-     * @throws ResourceNotFoundException If the project is not found.
-     */
-    List<TimeEntry> getTimeEntriesByProjectCriteria(String projectCriteria) throws ResourceNotFoundException;
-
-    /**
-     * Fetches the time-entries by task(Name).
-     *
-     * @param taskName name of the task.
-     * @return List of Found TimeEntries.
-     * @throws ResourceNotFoundException If the project is not found.
-     */
-    List<TimeEntry> getTimeEntriesByTaskName(String taskName);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Fetches the time-entries for the last month.
-     *
-     * @return List of TimeEntries for the last month.
-     */
-    List<TimeEntry> getTimeEntriesForLastMonth();
-
-    /**
-     * Fetches the time-entries for the last day.
-     *
-     * @return List of TimeEntries for the last day.
-     */
-    List<TimeEntry> getTimeEntriesForLastDay();
-
-    /**
-     * Fetches the time-entries for the last week.
-     *
-     * @return List of TimeEntries for the last week.
-     */
-    List<TimeEntry> getTimeEntriesForLastWeek();
 
 }

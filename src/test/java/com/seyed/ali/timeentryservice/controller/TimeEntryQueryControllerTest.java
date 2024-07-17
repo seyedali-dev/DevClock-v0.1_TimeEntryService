@@ -7,7 +7,7 @@ import com.seyed.ali.timeentryservice.model.domain.TimeEntry;
 import com.seyed.ali.timeentryservice.model.payload.TimeEntryDTO;
 import com.seyed.ali.timeentryservice.model.payload.TimeSegmentDTO;
 import com.seyed.ali.timeentryservice.model.payload.response.TimeEntryResponse;
-import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryService;
+import com.seyed.ali.timeentryservice.service.interfaces.TimeEntryQueryService;
 import com.seyed.ali.timeentryservice.util.TimeParser;
 import com.seyed.ali.timeentryservice.util.converter.TimeEntryConverter;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,14 +40,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SuppressWarnings({"unused", "FieldCanBeLocal", "MismatchedQueryAndUpdateOfCollection"})
-@WebMvcTest(TimeEntryController.class) /* since this is not in integration test, rather controller unit test */
+@WebMvcTest(TimeEntryQueryController.class) /* since this is not in integration test, rather controller unit test */
 @EnableConfigurationProperties /* to use application.yml-test file */
 @ActiveProfiles("test")
 @AutoConfigureMockMvc/* calling the api itself */
 @ContextConfiguration(classes = {EurekaClientTestConfiguration.class}) /* to call the configuration in the test (for service-registry configs) */
-class TimeEntryControllerTest {
+class TimeEntryQueryControllerTest {
 
-    private @MockBean TimeEntryService timeEntryService;
+    private @MockBean TimeEntryQueryService timeEntryQueryService;
     private @MockBean KeycloakSecurityUtil keycloakSecurityUtil;
     private @MockBean TimeEntryConverter timeEntryConverter;
     private @MockBean TimeParser timeParser;
@@ -125,7 +125,7 @@ class TimeEntryControllerTest {
     public void getTimeEntriesTest() throws Exception {
         //TODO: update the test
         // Given
-        when(this.timeEntryService.getTimeEntries()).thenReturn(this.timeEntries);
+        when(this.timeEntryQueryService.getTimeEntries()).thenReturn(this.timeEntries);
 
         String some_authority = "some_authority";
 
@@ -160,7 +160,7 @@ class TimeEntryControllerTest {
         // TODO: Update the test
         // Given
         String userId = "some_user_id";
-        when(this.timeEntryService.getUsersTimeEntry(userId)).thenReturn(this.timeEntry);
+        when(this.timeEntryQueryService.getUsersTimeEntry(userId)).thenReturn(this.timeEntry);
 
         String some_authority = "some_authority";
 
@@ -207,7 +207,7 @@ class TimeEntryControllerTest {
                 " | endTime (" + timeEntryDTO.getEndTime() + ")" +
                 " | duration(" + timeEntryDTO.getDuration() + ")";
 
-        when(this.timeEntryService.addTimeEntryManually(timeEntryDTO))
+        when(this.timeEntryQueryService.addTimeEntryManually(timeEntryDTO))
                 .thenReturn(responseMessage);
 
         String someAuthority = "some_authority";
@@ -273,7 +273,7 @@ class TimeEntryControllerTest {
         // Given
         String id = "1";
         doNothing()
-                .when(this.timeEntryService)
+                .when(this.timeEntryQueryService)
                 .deleteTimeEntry(id);
 
         String someAuthority = "some_authority";
@@ -298,7 +298,7 @@ class TimeEntryControllerTest {
     public void getTimeEntriesByProjectTest() throws Exception {
         // Given
         String projectId = "1";
-        when(this.timeEntryService.getTimeEntriesByProjectCriteria(isA(String.class))).thenReturn(this.timeEntries);
+        when(this.timeEntryQueryService.getTimeEntriesByProjectCriteria(isA(String.class))).thenReturn(this.timeEntries);
 
         String someAuthority = "some_authority";
 

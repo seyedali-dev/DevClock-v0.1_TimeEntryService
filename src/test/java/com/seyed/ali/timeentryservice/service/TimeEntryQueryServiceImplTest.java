@@ -38,9 +38,9 @@ import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-class TimeEntryServiceImplTest extends TimeParserUtilForTests {
+class TimeEntryQueryServiceImplTest extends TimeParserUtilForTests {
 
-    private @InjectMocks TimeEntryServiceImpl timeEntryService;
+    private @InjectMocks TimeEntryQueryServiceImpl timeEntryService;
     private @Mock TimeEntryRepository timeEntryRepository;
     private @Mock TimeSegmentRepository timeSegmentRepository;
     private @Mock AuthenticationServiceClient authenticationServiceClient;
