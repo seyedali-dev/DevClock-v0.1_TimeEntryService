@@ -107,4 +107,21 @@ public class TimeEntryFilterServiceImpl implements TimeEntryFilterService {
         return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public List<TimeEntry> getTimeEntriesForToday() {
+        // 'start' represents yesterday
+        LocalDateTime start = LocalDateTime.now() // Get today
+                .withHour(0).withMinute(0).withSecond(0); // Set the time to 00:00:00 to get the start of the day
+
+        // 'end' represents end of yesterday
+        LocalDateTime end = start
+                .withHour(23).withMinute(59).withSecond(59); // Set the time to 23:59:59 to Get the last moment of today
+
+        return this.timeEntryRepository.findTimeEntriesWithinRange(start, end);
+    }
+
 }

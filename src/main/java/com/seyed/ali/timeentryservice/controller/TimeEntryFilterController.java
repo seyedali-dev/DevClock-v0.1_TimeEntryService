@@ -118,4 +118,22 @@ public class TimeEntryFilterController {
         ));
     }
 
+    @GetMapping("/date/today")
+    @Operation(summary = "Get all time entries for the today", description = "Fetches all time entries from the database for today", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TimeEntry.class)))
+            )
+    })
+    public ResponseEntity<Result> getTimeEntriesForToday() {
+        List<TimeEntry> timeEntriesForToday = this.timeEntryFilterService.getTimeEntriesForToday();
+        return ResponseEntity.ok(new Result(
+                true,
+                OK,
+                "TimeEntries - Date::ToDay__Size=" + timeEntriesForToday.size(),
+                timeEntriesForToday
+        ));
+    }
+
 }
