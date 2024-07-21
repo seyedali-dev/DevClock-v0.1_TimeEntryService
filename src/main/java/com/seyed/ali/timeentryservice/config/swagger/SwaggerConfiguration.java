@@ -8,10 +8,11 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
+@SuppressWarnings("HttpUrlsUsage")
 @Configuration
 @SecurityScheme(
         name = "Keycloak",
-        openIdConnectUrl = "http://localhost:8080/realms/DevVault-v2.0/.well-known/openid-configuration",
+        openIdConnectUrl = "http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0/.well-known/openid-configuration",
         scheme = "bearer",
         type = SecuritySchemeType.OPENIDCONNECT,
         in = SecuritySchemeIn.HEADER
