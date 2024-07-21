@@ -33,7 +33,7 @@ public class TestControllerTest {
     @Test
     public void helloTest() throws Exception {
         ResultActions resultActions = this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/hello")
+                MockMvcRequestBuilders.get("/api/v1/time/hello")
                         .with(jwt().authorities(new SimpleGrantedAuthority("board_manager")))
                         .contentType(MediaType.APPLICATION_JSON)
         );
@@ -46,7 +46,7 @@ public class TestControllerTest {
     @Test
     public void helloTest_AccessDenied() throws Exception {
         ResultActions resultActions = this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/hello")
+                MockMvcRequestBuilders.get("/api/v1/time/hello")
                         .with(jwt().authorities(new SimpleGrantedAuthority("another_role")))
                         .contentType(MediaType.APPLICATION_JSON)
         );

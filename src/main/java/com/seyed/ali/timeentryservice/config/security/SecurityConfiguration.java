@@ -22,13 +22,18 @@ public class SecurityConfiguration {
 
     private final KeycloakJwtAuthorityConverter keycloakJwtAuthorityConverter;
     private final AuthServiceBearerTokenAccessDeniedHandler authServiceBearerTokenAccessDeniedHandler;
+    private final String[] authenticatedResources = {
+            "/eureka/**",
+            "/actuator/**",
+            "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/aggregate/**", "/favicon.ico", "/authentication-service/v3/api-docs",
+            "/h2-console/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(this.authenticatedResources).permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)) // This is for H2 browser console access.
