@@ -76,7 +76,7 @@ authentication:
 spring:
   kafka:
     consumer:
-      bootstrap-servers: ${KAFKA_SERVER_HOST_and_PORT:localhost:9092}
+      bootstrap-servers: ${KAFKA_SERVER_HOST:localhost}:${KAFKA_SERVER_PORT:9092}
       group-id: project_group_timeentry
       auto-offset-reset: earliest
 
